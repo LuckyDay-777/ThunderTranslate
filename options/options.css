@@ -1,0 +1,618 @@
+/* options.css - 設定画面スタイル */
+
+:root {
+  --primary-color: #1a73e8;
+  --primary-hover: #1557b0;
+  --bg-color: #f8f9fa;
+  --card-bg: #ffffff;
+  --text-main: #202124;
+  --text-secondary: #5f6368;
+  --border-color: #dadce0;
+  --danger-color: #d93025;
+  --danger-hover: #b3261e;
+  --success-color: #188038;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  margin: 0;
+  padding: 24px 16px;
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.app-header {
+  margin-bottom: 24px;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-img {
+  width: 36px;
+  height: 36px;
+}
+
+h1 {
+  font-size: 22px;
+  margin: 0;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 2px 0 0 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+h2 {
+  font-size: 16px;
+  margin: 0 0 8px 0;
+  color: #1a73e8;
+  font-weight: 600;
+}
+
+.desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0 0 16px 0;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  background: #f1f3f4;
+  color: #5f6368;
+}
+
+.status-badge.status-ok {
+  background: #e6f4ea;
+  color: var(--success-color);
+}
+
+.status-badge.status-warn {
+  background: #fef7e0;
+  color: #b06000;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--text-main);
+}
+
+input[type="password"],
+input[type="text"],
+select,
+textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: border-color 0.15s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+}
+
+.help-text {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.select-with-btn {
+  display: flex;
+  gap: 8px;
+}
+
+.select-with-btn select {
+  flex: 1;
+}
+
+.btn-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn {
+  padding: 9px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+  background-color: #e8f0fe;
+  color: var(--primary-color);
+}
+
+.btn-secondary:hover {
+  background-color: #d2e3fc;
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.btn-outline:hover {
+  background-color: #f1f3f4;
+}
+
+.btn-danger {
+  background-color: #fce8e6;
+  color: var(--danger-color);
+}
+
+.btn-danger:hover {
+  background-color: #fad2cf;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.message {
+  margin-top: 12px;
+  font-size: 13px;
+  display: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.message.show {
+  display: block;
+}
+
+.message.success {
+  background: #e6f4ea;
+  color: var(--success-color);
+}
+
+.message.error {
+  background: #fce8e6;
+  color: var(--danger-color);
+}
+
+.stats-box {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.stat-item {
+  background: #1a73e8;
+  border: 1px solid #1557b0;
+  border-radius: 8px;
+  padding: 12px 24px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.stat-num {
+  font-size: 26px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.stat-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #ffffff;
+  margin-top: 2px;
+}
+
+/* プログレスバー */
+.progress-container {
+  margin-bottom: 16px;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 8px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: var(--primary-color);
+  transition: width 0.2s ease;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+/* チェックボックス・ラベル */
+.checkbox-group {
+  margin-bottom: 12px;
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+}
+
+/* ショートカット入力スタイル */
+.shortcut-input-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.key-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  background: #1a73e8;
+  border: 1px solid #1557b0;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.key-plus {
+  font-weight: bold;
+  color: var(--text-secondary);
+}
+
+.key-char-input {
+  width: 44px !important;
+  text-align: center;
+  font-family: monospace;
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: lowercase;
+  padding: 6px !important;
+}
+
+/* サブカード (設定ブロック) */
+.sub-card {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.sub-card h3 {
+  font-size: 14px;
+  margin: 0 0 12px 0;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+/* 数値入力グループ */
+.number-input-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.number-input-group input[type="number"] {
+  width: 130px !important;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.unit-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* 最大保持件数入力欄のロック＆グレーアウトスタイル */
+#max-saved-count-wrapper.disabled {
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+#max-saved-count-wrapper.disabled input[type="number"] {
+  cursor: not-allowed;
+  background-color: #f1f3f4;
+  color: #80868b;
+  border-color: #dadce0;
+}
+
+/* ラジオボタングループ */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.radio-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  user-select: none;
+}
+
+.radio-label input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+}
+
+/* LLM パラメータ設定スタイル */
+.slider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 420px;
+  margin-bottom: 6px;
+}
+
+.slider-val {
+  display: inline-block;
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary-color);
+  background: #e8f0fe;
+  padding: 2px 8px;
+  border-radius: 4px;
+  min-width: 36px;
+  text-align: center;
+}
+
+.slider-input {
+  width: 100%;
+  max-width: 420px;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+}
+
+.short-number-input {
+  width: 100px !important;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.seed-radio-group {
+  margin-top: 6px;
+}
+
+.seed-input-wrapper {
+  margin-left: 28px;
+  margin-top: 4px;
+}
+
+.seed-input-wrapper input[type="number"] {
+  width: 180px !important;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.subcard-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: -6px;
+  margin-bottom: 14px;
+}
+
+.safety-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.safety-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.safety-item label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.safety-select {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 13px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--card-bg);
+  color: var(--text-main);
+}
+
+/* ダークモード */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #1e1f20;
+    --card-bg: #282a2d;
+    --text-main: #e8eaed;
+    --text-secondary: #9aa0a6;
+    --border-color: #3c4043;
+    --primary-color: #8ab4f8;
+    --primary-hover: #aecbfa;
+  }
+
+  .card {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  }
+
+  input[type="password"],
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    background: #1f1f1f;
+    color: #e8eaed;
+  }
+
+  .slider-val {
+    background: #2b3955;
+    color: #8ab4f8;
+  }
+
+  .status-badge {
+    background: #3c4043;
+    color: #9aa0a6;
+  }
+
+  .status-badge.status-ok {
+    background: #133924;
+    color: #81c995;
+  }
+
+  .status-badge.status-warn {
+    background: #382c0f;
+    color: #fdd663;
+  }
+
+  .btn-primary {
+    background-color: #8ab4f8;
+    color: #202124;
+  }
+
+  .btn-primary:hover {
+    background-color: #aecbfa;
+  }
+
+  .btn-secondary {
+    background-color: #2b3955;
+    color: #8ab4f8;
+  }
+
+  .btn-secondary:hover {
+    background-color: #35476d;
+  }
+
+  .btn-outline {
+    background-color: #3c4043;
+    color: #e8eaed;
+  }
+
+  .btn-danger {
+    background-color: #442726;
+    color: #f28b82;
+  }
+
+  /* ショートカットバッジ (Alt) - ダークモードでも青地に白文字で鮮明に表示 */
+  .key-badge {
+    background: #1a73e8;
+    border-color: #4285f4;
+    color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+
+  /* 保存済みメール数バッジ - ダークモードでも青地に白文字で鮮明に表示 */
+  .stat-item {
+    background: #1a73e8;
+    border-color: #4285f4;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  }
+
+  .stat-num {
+    color: #ffffff;
+  }
+
+  .stat-label {
+    color: #ffffff;
+  }
+
+  /* ロック時の入力欄 */
+  #max-saved-count-wrapper.disabled input[type="number"] {
+    background-color: #202124;
+    color: #5f6368;
+    border-color: #3c4043;
+  }
+}

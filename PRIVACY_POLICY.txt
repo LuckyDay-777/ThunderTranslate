@@ -1,0 +1,107 @@
+================================================================================
+ThunderTranslate - プライバシーポリシー (Privacy Policy)
+最終更新日 / Last Updated: 2026年10月24日 / October 24, 2026
+提供者 / Provider: lltecs.com (ThunderTranslate@lltecs.com)
+================================================================================
+
+【日本語 (Japanese)】
+
+本アドオン「ThunderTranslate」は、ユーザーのプライバシーとデータセキュリティを
+最優先事項として設計されています。本プライバシーポリシーでは、本アドオンが
+取り扱うデータとその取り扱い方法について説明します。
+
+1. 収集および送信されるデータについて
+--------------------------------------------------------------------------------
+本アドオンは、ユーザーが翻訳を明示的に指示した場合に限り、以下のデータを外部サービスに
+送信します。
+
+- 翻訳対象のテキストデータ:
+  ユーザーが「全文を翻訳」ボタンを押したメール本文、またはユーザーが明示的に
+  選択して翻訳を実行したテキスト。
+- Gemini API キー:
+  ユーザー自身が取得・設定した Google Gemini API 認証キー。
+
+※ 送信先は Google LLC が提供する Gemini API (Google Generative AI / 
+  https://generativelanguage.googleapis.com) のみです。
+※ 開発者（lltecs.com）またはその他の第三者のサーバーには、メール本文、
+  アカウント情報、APIキー、個人情報、ユーザーメモ等は一切収集・送信・保存されません。
+
+2. データのローカル保存および暗号化について
+--------------------------------------------------------------------------------
+- API キーの保護:
+  ユーザーが登録した Gemini API キーは、平文では保存されません。Web Crypto API を
+  用いた PBKDF2 (SHA-256 / 100,000回反復) および AES-GCM (256-bit) 暗号化により、
+  ユーザー自身が指定した PIN コードを用いて強力に暗号化された上で、お使いの
+  Thunderbird のローカルストレージ (browser.storage.local) に安全に保存されます。
+
+- 翻訳テキストおよびユーザーメモの保存:
+  再表示を高速化するため、翻訳結果およびユーザーが追加したメモ（エメラルドグリーンカード）は
+  お使いの Thunderbird のローカルストレージ (browser.storage.local) にのみ保存されます。
+  外部のサーバーや第三者へ送信されることは一切ありません。
+  アドオンの設定画面より、いつでも一括削除または個別削除が可能です。
+  また、保持上限設定により古い翻訳から自動削除させることや、保存件数を0件にして
+  一切保存しない設定にすることも可能です。
+
+3. 外部サービスの利用規約・プライバシーポリシー
+--------------------------------------------------------------------------------
+翻訳処理のために送信されたデータは、Google LLC の利用規約およびプライバシー
+ポリシーに基づいて取り扱われます。詳細は以下をご確認ください。
+- Google プライバシー ポリシー: https://policies.google.com/privacy
+- Google Gemini API 利用規約: https://ai.google.dev/terms
+
+4. お問い合わせ
+--------------------------------------------------------------------------------
+本アドオンおよびプライバシーポリシーに関するご質問やお問い合わせは、
+以下までご連絡ください。
+- サポート / 連絡先: ThunderTranslate@lltecs.com
+- 公式サイト: https://lltecs.com
+
+===============================================================================
+【English】
+
+ThunderTranslate is designed with user privacy and data security as top priorities.
+This privacy policy explains what data the add-on processes and how it is handled.
+
+1. Data Collected and Transmitted
+--------------------------------------------------------------------------------
+This add-on transmits data to an external service ONLY when the user explicitly
+requests a translation:
+
+- Text to be translated:
+  The email body when the user clicks "Translate Full Email", or text explicitly
+  selected by the user for translation.
+- Gemini API Key:
+  The user's own Google Gemini API key configured in the settings.
+
+* The only external destination is Google LLC's Gemini API
+  (https://generativelanguage.googleapis.com).
+* The developer (lltecs.com) or any third-party servers do NOT collect, receive,
+  or store any email content, account details, API keys, personal data, or user notes.
+
+2. Local Storage and Encryption
+--------------------------------------------------------------------------------
+- API Key Protection:
+  Your Gemini API key is never stored in plain text. It is strongly encrypted
+  using Web Crypto API with PBKDF2 (SHA-256, 100,000 iterations) and AES-GCM
+  (256-bit) using a PIN code of your choice, and stored safely in Thunderbird's
+  local storage (browser.storage.local).
+
+- Translation Text & User Notes Storage:
+  To provide fast rendering upon re-reading, translations and user notes
+  (emerald-green memo cards) are stored strictly inside your local Thunderbird
+  storage (browser.storage.local). They are NEVER transmitted to any external server.
+  You can clear all or individual records at any time from the settings page,
+  or configure retention limits / disable caching entirely (0 items).
+
+3. External Service Terms & Privacy Policies
+--------------------------------------------------------------------------------
+Data submitted for translation is handled according to Google LLC's Terms of
+Service and Privacy Policy:
+- Google Privacy Policy: https://policies.google.com/privacy
+- Google Gemini API Terms: https://ai.google.dev/terms
+
+4. Contact & Support
+--------------------------------------------------------------------------------
+If you have any questions regarding this add-on or privacy policy:
+- Support Email: ThunderTranslate@lltecs.com
+- Official Website: https://lltecs.com

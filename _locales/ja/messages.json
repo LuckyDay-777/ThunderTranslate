@@ -1,0 +1,521 @@
+{
+  "extensionName": {
+    "message": "ThunderTranslate",
+    "description": "アドオンの名前"
+  },
+  "extensionDescription": {
+    "message": "受信したメールをGemini APIで日本語に翻訳し、本文内に直接割り込み表示するアドインです。",
+    "description": "アドオンの説明文"
+  },
+  "actionTitle": {
+    "message": "全文を翻訳",
+    "description": "メッセージヘッダーボタンのタイトル"
+  },
+  "actionShowTranslation": {
+    "message": "翻訳を表示",
+    "description": "メッセージヘッダーボタン: 翻訳表示"
+  },
+  "actionHideTranslation": {
+    "message": "翻訳を非表示",
+    "description": "メッセージヘッダーボタン: 翻訳非表示"
+  },
+  "menuTranslateFull": {
+    "message": "メール全文を翻訳",
+    "description": "コンテキストメニュー: 全文翻訳"
+  },
+  "menuTranslateSelection": {
+    "message": "選択テキストを翻訳",
+    "description": "コンテキストメニュー: 選択翻訳"
+  },
+  "translatingFull": {
+    "message": "全文を翻訳中...",
+    "description": "全文翻訳ローディング表示"
+  },
+  "translatingSelection": {
+    "message": "選択テキストを翻訳中...",
+    "description": "選択範囲翻訳ローディング表示"
+  },
+  "badgeTitle": {
+    "message": "Gemini 翻訳",
+    "description": "翻訳カードヘッダーバッジ"
+  },
+  "btnCopy": {
+    "message": "コピー",
+    "description": "コピーボタン"
+  },
+  "btnCopied": {
+    "message": "コピーしました",
+    "description": "コピー完了状態"
+  },
+  "btnDelete": {
+    "message": "削除",
+    "description": "翻訳削除ボタン"
+  },
+  "toastCopySuccess": {
+    "message": "翻訳テキストをクリップボードにコピーしました",
+    "description": "トースト: コピー成功"
+  },
+  "toastCopyFailed": {
+    "message": "コピーに失敗しました",
+    "description": "トースト: コピー失敗"
+  },
+  "toastDeleteSuccess": {
+    "message": "翻訳データを削除しました",
+    "description": "トースト: 削除完了"
+  },
+  "toastSelectText": {
+    "message": "翻訳するテキストを選択してください",
+    "description": "トースト: 未選択エラー"
+  },
+  "pinModalTitle": {
+    "message": "PINコードの入力",
+    "description": "PINモーダルタイトル"
+  },
+  "pinModalBadge": {
+    "message": "APIキーの復号",
+    "description": "PINモーダルバッジ"
+  },
+  "pinModalDesc": {
+    "message": "設定時に指定した暗号化解除用 PIN を入力してください。",
+    "description": "PINモーダル説明文"
+  },
+  "pinModalPlaceholder": {
+    "message": "暗号化解除用 PIN コード",
+    "description": "PIN入力プレースホルダー"
+  },
+  "pinModalSubmit": {
+    "message": "解除して翻訳",
+    "description": "PIN解除ボタン"
+  },
+  "pinModalCancel": {
+    "message": "キャンセル",
+    "description": "PINキャンセルボタン"
+  },
+  "pinModalEmpty": {
+    "message": "PINコードを入力してください。",
+    "description": "PIN未入力エラー"
+  },
+  "pinModalInvalid": {
+    "message": "PINコードが正しくありません。",
+    "description": "PIN不一致エラー"
+  },
+  "errApiKeyNotSet": {
+    "message": "APIキーが設定されていません。アドオンの設定画面で設定してください。",
+    "description": "APIキー未設定エラー"
+  },
+  "errNoTextFound": {
+    "message": "翻訳対象のテキストが見つかりませんでした。",
+    "description": "テキスト未検出エラー"
+  },
+  "errApiFailed": {
+    "message": "Gemini API エラー: $1",
+    "description": "APIエラー",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "errNoMessageId": {
+    "message": "メッセージIDの取得に失敗しました。",
+    "description": "メッセージID未取得エラー"
+  },
+  "errConnectionFailed": {
+    "message": "アドオン内部の通信に失敗しました。Thunderbirdを再起動するか再試行してください。",
+    "description": "通信エラー"
+  },
+  "optionsTitle": {
+    "message": "ThunderTranslate 設定",
+    "description": "設定画面タイトル"
+  },
+  "optionsSubtitle": {
+    "message": "メール翻訳とストレージの管理",
+    "description": "設定画面サブタイトル"
+  },
+  "sec1Title": {
+    "message": "1. Gemini API キー設定",
+    "description": "セクション1タイトル"
+  },
+  "sec1Desc": {
+    "message": "Google AI Studio で取得した API キーを入力してください。API キーは Web Crypto API (AES-GCM 256bit) により暗号化され、安全にローカル保存されます。",
+    "description": "セクション1説明文"
+  },
+  "statusChecking": {
+    "message": "確認中...",
+    "description": "APIステータス確認中"
+  },
+  "statusConfigured": {
+    "message": "設定済み (暗号化保護中)",
+    "description": "API設定済みステータス"
+  },
+  "statusNotConfigured": {
+    "message": "未設定",
+    "description": "API未設定ステータス"
+  },
+  "labelApiKey": {
+    "message": "Gemini API キー:",
+    "description": "APIキーラベル"
+  },
+  "placeholderApiKeyConfigured": {
+    "message": "•••••••••••••••••••••••• (保存済み)",
+    "description": "保存済みAPIキープレースホルダー"
+  },
+  "labelPin": {
+    "message": "暗号化解除用 PIN (4桁以上の数字または文字列):",
+    "description": "PINラベル"
+  },
+  "placeholderPin": {
+    "message": "例: 1234",
+    "description": "PINプレースホルダー"
+  },
+  "helpPin": {
+    "message": "Thunderbird 起動後の初回翻訳時にこの PIN の入力が求められます。",
+    "description": "PINヘルプ文"
+  },
+  "btnSaveApi": {
+    "message": "暗号化して保存",
+    "description": "API保存ボタン"
+  },
+  "btnSavingApi": {
+    "message": "暗号化中...",
+    "description": "API保存中テキスト"
+  },
+  "sec2Title": {
+    "message": "2. 使用モデル選択",
+    "description": "セクション2タイトル"
+  },
+  "sec2Desc": {
+    "message": "翻訳に使用する Gemini モデルを選択します。API キーを保存すると自動で最新の利用可能モデル一覧を取得します。",
+    "description": "セクション2説明文"
+  },
+  "labelModel": {
+    "message": "モデル:",
+    "description": "モデルラベル"
+  },
+  "btnFetchModels": {
+    "message": "モデル一覧を再取得",
+    "description": "モデル一覧再取得ボタン"
+  },
+  "btnFetchingModels": {
+    "message": "取得中...",
+    "description": "モデル取得中テキスト"
+  },
+  "sec3Title": {
+    "message": "3. 翻訳プロンプト設定",
+    "description": "セクション3タイトル"
+  },
+  "sec3Desc": {
+    "message": "Gemini に送信する翻訳プロンプト（指示文）を5種類から選択・編集できます。",
+    "description": "セクション3説明文"
+  },
+  "labelPromptPreset": {
+    "message": "プロンプトプリセット:",
+    "description": "プリセットラベル"
+  },
+  "presetBusiness": {
+    "message": "ビジネス",
+    "description": "ビジネスプリセット名"
+  },
+  "presetNuko": {
+    "message": "ぬこ",
+    "description": "ぬこプリセット名"
+  },
+  "presetUser1": {
+    "message": "ユーザー 1",
+    "description": "ユーザー1プリセット名"
+  },
+  "presetUser2": {
+    "message": "ユーザー 2",
+    "description": "ユーザー2プリセット名"
+  },
+  "presetUser3": {
+    "message": "ユーザー 3",
+    "description": "ユーザー3プリセット名"
+  },
+  "labelPromptText": {
+    "message": "プロンプト本文:",
+    "description": "プロンプト本文ラベル"
+  },
+  "btnSavePrompt": {
+    "message": "プロンプトを保存",
+    "description": "プロンプト保存ボタン"
+  },
+  "btnResetPrompt": {
+    "message": "選択中プリセットを初期値に戻す",
+    "description": "初期値リセットボタン"
+  },
+  "sec4Title": {
+    "message": "4. LLM パラメータ設定",
+    "description": "セクション4タイトル"
+  },
+  "sec4Desc": {
+    "message": "翻訳生成時の多様性（温度・Top-K・Top-P・乱数シード）およびセーフティフィルタの厳しさを設定します。",
+    "description": "セクション4説明文"
+  },
+  "labelTemperature": {
+    "message": "温度 (Temperature):",
+    "description": "温度設定ラベル"
+  },
+  "helpTemperature": {
+    "message": "値が高いほど創造的で多様な表現になり、低いほど一貫した正確な翻訳になります (デフォルト: 0.5、範囲: 0〜2)。",
+    "description": "温度設定ヘルプ"
+  },
+  "labelTopK": {
+    "message": "Top-K (1〜40):",
+    "description": "Top-K設定ラベル"
+  },
+  "helpTopK": {
+    "message": "各生成ステップで候補とする単語の最大数を指定します (デフォルト: 7、範囲: 1〜40)。",
+    "description": "Top-K設定ヘルプ"
+  },
+  "labelTopP": {
+    "message": "Top-P (0.01〜1.00):",
+    "description": "Top-P設定ラベル"
+  },
+  "helpTopP": {
+    "message": "累積確率がこの値に達するまでの単語群から選択します (デフォルト: 0.90、範囲: 0.01〜1.00)。",
+    "description": "Top-P設定ヘルプ"
+  },
+  "labelSeed": {
+    "message": "乱数シード (Seed):",
+    "description": "シード設定ラベル"
+  },
+  "labelSeedRandom": {
+    "message": "ランダム（デフォルト: 毎回異なるバリエーションを許可）",
+    "description": "シード: ランダム"
+  },
+  "labelSeedFixed": {
+    "message": "固定値（再現性のある同一の翻訳結果を得る）:",
+    "description": "シード: 固定値"
+  },
+  "helpSeed": {
+    "message": "固定値を指定すると、同じ入力テキストに対して決定論的な同一結果が得られやすくなります (範囲: 0〜4294967295)。",
+    "description": "シード設定ヘルプ"
+  },
+  "labelMaxOutputTokens": {
+    "message": "最大出力トークン数 (Max Output Tokens):",
+    "description": "最大出力トークン数ラベル"
+  },
+  "unitTokens": {
+    "message": "Tokens",
+    "description": "トークン単位"
+  },
+  "helpMaxOutputTokens": {
+    "message": "モデルが1回の応答で出力する最大トークン数を指定します (デフォルト: 5000 Tokens、範囲: 100〜65536)。",
+    "description": "最大出力トークン数ヘルプ"
+  },
+  "labelMaxTranslationChars": {
+    "message": "前処理用最大入力サイズ (MAX_TRANSLATION_CHARS):",
+    "description": "前処理用最大入力サイズラベル"
+  },
+  "unitBytes": {
+    "message": "byte",
+    "description": "バイト単位"
+  },
+  "helpMaxTranslationChars": {
+    "message": "過大データによるメモリ枯渇を防ぐため、前処理およびAPI送信時に許容するメール本文の最大サイズを指定します (デフォルト: 50000 byte、範囲: 1000〜500000)。",
+    "description": "前処理用最大入力サイズヘルプ"
+  },
+  "subcardSafetyTitle": {
+    "message": "セーフティ設定 (Safety Settings)",
+    "description": "セーフティ設定タイトル"
+  },
+  "subcardSafetyDesc": {
+    "message": "不適切な表現や有害コンテンツに対するGeminiのフィルタリング強度を指定します (デフォルト: すべて高のみブロック)。",
+    "description": "セーフティ設定説明"
+  },
+  "catHarassment": {
+    "message": "嫌がらせ (Harassment):",
+    "description": "カテゴリ: 嫌がらせ"
+  },
+  "catHateSpeech": {
+    "message": "ヘイトスピーチ (Hate Speech):",
+    "description": "カテゴリ: ヘイトスピーチ"
+  },
+  "catSexuallyExplicit": {
+    "message": "性的に露骨な表現 (Sexually Explicit):",
+    "description": "カテゴリ: 性的に露骨な表現"
+  },
+  "catDangerousContent": {
+    "message": "危険なコンテンツ (Dangerous Content):",
+    "description": "カテゴリ: 危険なコンテンツ"
+  },
+  "optBlockLow": {
+    "message": "低以上をブロック (最も厳格)",
+    "description": "閾値: 低以上"
+  },
+  "optBlockMedium": {
+    "message": "中以上をブロック (標準的)",
+    "description": "閾値: 中以上"
+  },
+  "optBlockHigh": {
+    "message": "高のみブロック (デフォルト)",
+    "description": "閾値: 高のみ"
+  },
+  "optBlockNone": {
+    "message": "ブロックなし",
+    "description": "閾値: なし"
+  },
+  "btnSaveLlmParams": {
+    "message": "パラメータ設定を保存",
+    "description": "LLMパラメータ保存ボタン"
+  },
+  "btnResetLlmParams": {
+    "message": "デフォルト値に戻す",
+    "description": "LLMパラメータリセットボタン"
+  },
+  "msgLlmParamsSaved": {
+    "message": "LLMパラメータ設定を保存しました。",
+    "description": "LLMパラメータ保存完了メッセージ"
+  },
+  "msgLlmParamsReset": {
+    "message": "LLMパラメータ設定をデフォルト値に戻しました。",
+    "description": "LLMパラメータリセット完了メッセージ"
+  },
+  "sec5Title": {
+    "message": "5. ショートカットキー設定",
+    "description": "セクション5タイトル"
+  },
+  "sec5Desc": {
+    "message": "メール本文のテキスト選択中に押すことで、素早く選択テキストを翻訳するショートカットキーを設定します。",
+    "description": "セクション5説明文"
+  },
+  "checkboxEnableShortcut": {
+    "message": "ショートカットキーによる選択範囲翻訳を有効にする",
+    "description": "ショートカット有効化チェックボックス"
+  },
+  "labelShortcutCombination": {
+    "message": "ショートカットキーの組み合わせ:",
+    "description": "ショートカット組み合わせラベル"
+  },
+  "helpShortcut": {
+    "message": "アルファベットまたは数字を1文字指定してください（デフォルト: t）。",
+    "description": "ショートカットキーヘルプ"
+  },
+  "btnSaveShortcut": {
+    "message": "ショートカット設定を保存",
+    "description": "ショートカット保存ボタン"
+  },
+  "sec6Title": {
+    "message": "6. 保存された翻訳データ・メモの管理",
+    "description": "セクション6タイトル"
+  },
+  "sec6Desc": {
+    "message": "ローカルストレージ (browser.storage.local) に保存されたメール翻訳データ・メモの整理、最大保持件数の自動管理、および削除を行います。",
+    "description": "セクション6説明文"
+  },
+  "labelSavedEmailsCount": {
+    "message": "保存済みメール数",
+    "description": "保存済み件数ラベル"
+  },
+  "subcardAutoCleanupTitle": {
+    "message": "最大保持件数の自動管理",
+    "description": "自動クリーンアップサブカードタイトル"
+  },
+  "checkboxEnableAutoCleanup": {
+    "message": "最大保持件数を超えた場合に古い翻訳・メモを自動削除する",
+    "description": "自動削除チェックボックスラベル"
+  },
+  "labelMaxSavedCount": {
+    "message": "最大保持メール件数 (0〜3000):",
+    "description": "最大保持件数ラベル"
+  },
+  "unitEmails": {
+    "message": "件",
+    "description": "件数単位"
+  },
+  "helpMaxSavedCountDesc": {
+    "message": "最大件数を超えた場合、操作が古いメールから翻訳・メモが自動的に削除されます。",
+    "description": "最大保持件数ヘルプ文1"
+  },
+  "helpMaxSavedCountZero": {
+    "message": "※ 0 件に設定した場合は、翻訳テキストはストレージに一切保存されません。",
+    "description": "最大保持件数ヘルプ文2"
+  },
+  "btnSaveMaxSaved": {
+    "message": "保持設定を保存",
+    "description": "保持設定保存ボタン"
+  },
+  "cleanupProgressText": {
+    "message": "整理中...",
+    "description": "整理中プログレス表示"
+  },
+  "btnCleanup": {
+    "message": "翻訳文章・メモを整理する",
+    "description": "整理実行ボタン"
+  },
+  "btnClearAll": {
+    "message": "翻訳文章・メモを全て削除する",
+    "description": "全削除ボタン"
+  },
+  "confirmClearAll": {
+    "message": "保存されているすべての翻訳・メモデータを完全に削除しますか？この操作は取り消せません。",
+    "description": "全削除確認ダイアログ"
+  },
+  "confirmCleanup": {
+    "message": "すでに削除または存在しないメールの翻訳・メモデータを検知・削除して整理しますか？",
+    "description": "整理確認ダイアログ"
+  },
+  "sec7Title": {
+    "message": "7. 表示言語設定",
+    "description": "言語設定セクションタイトル"
+  },
+  "sec7Desc": {
+    "message": "アドオンの表示言語（UI、メニュー、通知）を選択します。",
+    "description": "言語設定セクション説明文"
+  },
+  "radioLangAuto": {
+    "message": "自動 (Thunderbird 本体の言語に合わせる)",
+    "description": "言語: 自動"
+  },
+  "radioLangJa": {
+    "message": "日本語 (Japanese)",
+    "description": "言語: 日本語"
+  },
+  "radioLangEn": {
+    "message": "English (英語)",
+    "description": "言語: 英語"
+  },
+  "msgLangChanged": {
+    "message": "表示言語を変更しました。",
+    "description": "言語変更通知メッセージ"
+  },
+  "menuAddMemo": {
+    "message": "メモを追加",
+    "description": "右クリックメニュー: メモを追加"
+  },
+  "memoBadgeTitle": {
+    "message": "メモ",
+    "description": "メモカードヘッダーバッジ"
+  },
+  "memoPlaceholder": {
+    "message": "ここにメモを入力...（自動保存されます）",
+    "description": "メモ入力プレースホルダー"
+  },
+  "memoStatusSaving": {
+    "message": "保存中...",
+    "description": "メモ自動保存中ステータス"
+  },
+  "memoStatusSaved": {
+    "message": "自動保存済み",
+    "description": "メモ自動保存完了ステータス"
+  },
+  "btnDeleteMemo": {
+    "message": "このメモを削除",
+    "description": "メモ削除ボタン"
+  },
+  "toastMemoDeleted": {
+    "message": "メモを削除しました。",
+    "description": "トースト: メモ削除完了"
+  },
+  "checkboxEnableMemoShortcut": {
+    "message": "ショートカットキーによるメモ追加を有効にする",
+    "description": "メモショートカット有効化チェックボックス"
+  },
+  "labelMemoShortcutCombination": {
+    "message": "メモ追加ショートカットキーの組み合わせ:",
+    "description": "メモショートカットキー入力ラベル"
+  },
+  "helpMemoShortcut": {
+    "message": "アルファベットまたは数字を1文字指定してください（デフォルト: m）。",
+    "description": "メモショートカットキーヘルプ文"
+  }
+}

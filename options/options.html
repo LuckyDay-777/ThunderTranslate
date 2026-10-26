@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="options-page-title">ThunderTranslate 設定</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header class="app-header">
+      <div class="logo-area">
+        <img src="../icons/icon-32.png" alt="ThunderTranslate Logo" class="logo-img">
+        <div>
+          <h1 id="options-main-title">ThunderTranslate 設定</h1>
+          <p class="subtitle" data-i18n="optionsSubtitle">メール翻訳とストレージの管理</p>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- 1. API キー & 暗号化 PIN 設定 -->
+      <section class="card">
+        <h2 data-i18n="sec1Title">1. Gemini API キー設定</h2>
+        <p class="desc" data-i18n="sec1Desc">
+          Google AI Studio で取得した API キーを入力してください。API キーは Web Crypto API (AES-GCM 256bit) により暗号化され、安全にローカル保存されます。
+        </p>
+
+        <div class="status-badge" id="api-status-badge">
+          <span class="status-dot"></span>
+          <span id="api-status-text" data-i18n="statusChecking">確認中...</span>
+        </div>
+
+        <div class="form-group">
+          <label for="api-key-input" data-i18n="labelApiKey">Gemini API キー:</label>
+          <input type="password" id="api-key-input" placeholder="AIzaSy..." autocomplete="off">
+        </div>
+
+        <div class="form-group">
+          <label for="pin-input" data-i18n="labelPin">暗号化解除用 PIN (4桁以上の数字または文字列):</label>
+          <input type="password" id="pin-input" placeholder="例: 1234" autocomplete="off" data-i18n-placeholder="placeholderPin">
+          <small class="help-text" data-i18n="helpPin">Thunderbird 起動後の初回翻訳時にこの PIN の入力が求められます。</small>
+        </div>
+
+        <div class="btn-group">
+          <button id="save-api-btn" class="btn btn-primary" data-i18n="btnSaveApi">暗号化して保存</button>
+        </div>
+        <div id="api-message" class="message"></div>
+      </section>
+
+      <!-- 2. モデル選択 -->
+      <section class="card">
+        <h2 data-i18n="sec2Title">2. 使用モデル選択</h2>
+        <p class="desc" data-i18n="sec2Desc">翻訳に使用する Gemini モデルを選択します。API キーを保存すると自動で最新の利用可能モデル一覧を取得します。</p>
+
+        <div class="form-group">
+          <label for="model-select" data-i18n="labelModel">モデル:</label>
+          <div class="select-with-btn">
+            <select id="model-select">
+              <option value="gemini-1.5-flash">gemini-1.5-flash (推奨・高速)</option>
+              <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+              <option value="gemini-1.5-pro">gemini-1.5-pro (高精度)</option>
+            </select>
+            <button id="fetch-models-btn" class="btn btn-secondary" data-i18n="btnFetchModels">モデル一覧を再取得</button>
+          </div>
+        </div>
+        <div id="model-message" class="message"></div>
+      </section>
+
+      <!-- 3. プロンプト設定 -->
+      <section class="card">
+        <h2 data-i18n="sec3Title">3. 翻訳プロンプト設定</h2>
+        <p class="desc" data-i18n="sec3Desc">Gemini に送信する翻訳プロンプト（指示文）を5種類から選択・編集できます。</p>
+
+        <div class="form-group">
+          <label for="prompt-type-select" data-i18n="labelPromptPreset">プロンプトプリセット:</label>
+          <select id="prompt-type-select">
+            <option value="business" data-i18n="presetBusiness">ビジネス</option>
+            <option value="nuko" data-i18n="presetNuko">ぬこ</option>
+            <option value="user1" data-i18n="presetUser1">ユーザー 1</option>
+            <option value="user2" data-i18n="presetUser2">ユーザー 2</option>
+            <option value="user3" data-i18n="presetUser3">ユーザー 3</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="prompt-input" data-i18n="labelPromptText">プロンプト本文:</label>
+          <textarea id="prompt-input" rows="5"></textarea>
+        </div>
+
+        <div class="btn-group">
+          <button id="save-prompt-btn" class="btn btn-primary" data-i18n="btnSavePrompt">プロンプトを保存</button>
+          <button id="reset-prompt-btn" class="btn btn-outline" data-i18n="btnResetPrompt">選択中プリセットを初期値に戻す</button>
+        </div>
+        <div id="prompt-message" class="message"></div>
+      </section>
+
+      <!-- 4. LLM パラメータ設定 -->
+      <section class="card">
+        <h2 data-i18n="sec4Title">4. LLM パラメータ設定</h2>
+        <p class="desc" data-i18n="sec4Desc">
+          翻訳生成時の多様性（温度・Top-K・Top-P・乱数シード）およびセーフティフィルタの厳しさを設定します。
+        </p>
+
+        <!-- Temperature -->
+        <div class="form-group">
+          <div class="slider-header">
+            <label for="temperature-input" data-i18n="labelTemperature">温度 (Temperature):</label>
+            <span class="slider-val" id="temperature-val">0.5</span>
+          </div>
+          <input type="range" id="temperature-input" min="0" max="2" step="0.05" value="0.5" class="slider-input">
+          <small class="help-text" data-i18n="helpTemperature">値が高いほど創造的で多様な表現になり、低いほど一貫した正確な翻訳になります (デフォルト: 0.5、範囲: 0〜2)。</small>
+        </div>
+
+        <!-- Top-K -->
+        <div class="form-group">
+          <label for="top-k-input" data-i18n="labelTopK">Top-K (1〜40):</label>
+          <div class="number-input-group">
+            <input type="number" id="top-k-input" min="1" max="40" step="1" value="7" class="short-number-input">
+          </div>
+          <small class="help-text" data-i18n="helpTopK">各生成ステップで候補とする単語の最大数を指定します (デフォルト: 7、範囲: 1〜40)。</small>
+        </div>
+
+        <!-- Top-P -->
+        <div class="form-group">
+          <div class="slider-header">
+            <label for="top-p-input" data-i18n="labelTopP">Top-P (0.01〜1.00):</label>
+            <span class="slider-val" id="top-p-val">0.90</span>
+          </div>
+          <input type="range" id="top-p-input" min="0.01" max="1" step="0.01" value="0.9" class="slider-input">
+          <small class="help-text" data-i18n="helpTopP">累積確率がこの値に達するまでの単語群から選択します (デフォルト: 0.90、範囲: 0.01〜1.00)。</small>
+        </div>
+
+        <!-- Seed -->
+        <div class="form-group">
+          <label data-i18n="labelSeed">乱数シード (Seed):</label>
+          <div class="radio-group seed-radio-group">
+            <label class="radio-label">
+              <input type="radio" name="seed-mode" value="random" id="seed-mode-random" checked>
+              <span data-i18n="labelSeedRandom">ランダム（デフォルト: 毎回異なるバリエーションを許可）</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="seed-mode" value="fixed" id="seed-mode-fixed">
+              <span data-i18n="labelSeedFixed">固定値（再現性のある同一の翻訳結果を得る）:</span>
+            </label>
+            <div class="seed-input-wrapper" id="seed-input-wrapper" style="display: none;">
+              <input type="number" id="seed-value-input" min="0" max="4294967295" step="1" value="0" placeholder="0">
+            </div>
+          </div>
+          <small class="help-text" data-i18n="helpSeed">固定値を指定すると、同じ入力テキストに対して決定論的な同一結果が得られやすくなります (範囲: 0〜4294967295)。</small>
+        </div>
+
+        <!-- Max Output Tokens -->
+        <div class="form-group">
+          <label for="max-output-tokens-input" data-i18n="labelMaxOutputTokens">最大出力トークン数 (Max Output Tokens):</label>
+          <div class="number-input-group">
+            <input type="number" id="max-output-tokens-input" min="100" max="65536" step="100" value="5000">
+            <span class="unit-text" data-i18n="unitTokens">Tokens</span>
+          </div>
+          <small class="help-text" data-i18n="helpMaxOutputTokens">モデルが1回の応答で出力する最大トークン数を指定します (デフォルト: 5000 Tokens、範囲: 100〜65536)。</small>
+        </div>
+
+        <!-- MAX_TRANSLATION_CHARS -->
+        <div class="form-group">
+          <label for="max-translation-chars-input" data-i18n="labelMaxTranslationChars">前処理用最大入力サイズ (MAX_TRANSLATION_CHARS):</label>
+          <div class="number-input-group">
+            <input type="number" id="max-translation-chars-input" min="1000" max="500000" step="1000" value="50000">
+            <span class="unit-text" data-i18n="unitBytes">byte</span>
+          </div>
+          <small class="help-text" data-i18n="helpMaxTranslationChars">過大データによるメモリ枯渇を防ぐため、前処理およびAPI送信時に許容するメール本文の最大サイズを指定します (デフォルト: 50000 byte、範囲: 1000〜500000)。</small>
+        </div>
+
+        <!-- Safety Settings Subcard -->
+        <div class="sub-card">
+          <h3 data-i18n="subcardSafetyTitle">セーフティ設定 (Safety Settings)</h3>
+          <p class="subcard-desc" data-i18n="subcardSafetyDesc">不適切な表現や有害コンテンツに対するGeminiのフィルタリング強度を指定します (デフォルト: すべて高のみブロック)。</p>
+          <div class="safety-grid">
+            <div class="safety-item">
+              <label for="safety-harassment" data-i18n="catHarassment">嫌がらせ (Harassment):</label>
+              <select id="safety-harassment" class="safety-select">
+                <option value="BLOCK_LOW_AND_ABOVE" data-i18n="optBlockLow">低以上をブロック (最も厳格)</option>
+                <option value="BLOCK_MEDIUM_AND_ABOVE" data-i18n="optBlockMedium">中以上をブロック (標準的)</option>
+                <option value="BLOCK_ONLY_HIGH" selected data-i18n="optBlockHigh">高のみブロック (デフォルト)</option>
+                <option value="BLOCK_NONE" data-i18n="optBlockNone">ブロックなし</option>
+              </select>
+            </div>
+            <div class="safety-item">
+              <label for="safety-hate-speech" data-i18n="catHateSpeech">ヘイトスピーチ (Hate Speech):</label>
+              <select id="safety-hate-speech" class="safety-select">
+                <option value="BLOCK_LOW_AND_ABOVE" data-i18n="optBlockLow">低以上をブロック (最も厳格)</option>
+                <option value="BLOCK_MEDIUM_AND_ABOVE" data-i18n="optBlockMedium">中以上をブロック (標準的)</option>
+                <option value="BLOCK_ONLY_HIGH" selected data-i18n="optBlockHigh">高のみブロック (デフォルト)</option>
+                <option value="BLOCK_NONE" data-i18n="optBlockNone">ブロックなし</option>
+              </select>
+            </div>
+            <div class="safety-item">
+              <label for="safety-sexually-explicit" data-i18n="catSexuallyExplicit">性的に露骨な表現 (Sexually Explicit):</label>
+              <select id="safety-sexually-explicit" class="safety-select">
+                <option value="BLOCK_LOW_AND_ABOVE" data-i18n="optBlockLow">低以上をブロック (最も厳格)</option>
+                <option value="BLOCK_MEDIUM_AND_ABOVE" data-i18n="optBlockMedium">中以上をブロック (標準的)</option>
+                <option value="BLOCK_ONLY_HIGH" selected data-i18n="optBlockHigh">高のみブロック (デフォルト)</option>
+                <option value="BLOCK_NONE" data-i18n="optBlockNone">ブロックなし</option>
+              </select>
+            </div>
+            <div class="safety-item">
+              <label for="safety-dangerous-content" data-i18n="catDangerousContent">危険なコンテンツ (Dangerous Content):</label>
+              <select id="safety-dangerous-content" class="safety-select">
+                <option value="BLOCK_LOW_AND_ABOVE" data-i18n="optBlockLow">低以上をブロック (最も厳格)</option>
+                <option value="BLOCK_MEDIUM_AND_ABOVE" data-i18n="optBlockMedium">中以上をブロック (標準的)</option>
+                <option value="BLOCK_ONLY_HIGH" selected data-i18n="optBlockHigh">高のみブロック (デフォルト)</option>
+                <option value="BLOCK_NONE" data-i18n="optBlockNone">ブロックなし</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button id="save-llm-params-btn" class="btn btn-primary" data-i18n="btnSaveLlmParams">パラメータ設定を保存</button>
+          <button id="reset-llm-params-btn" class="btn btn-outline" data-i18n="btnResetLlmParams">デフォルト値に戻す</button>
+        </div>
+        <div id="llm-params-message" class="message"></div>
+      </section>
+
+      <!-- 5. ショートカットキー設定 -->
+      <section class="card">
+        <h2 data-i18n="sec5Title">5. ショートカットキー設定</h2>
+        <p class="desc" data-i18n="sec5Desc">
+          メール本文のテキスト選択中に押すことで、素早く選択テキストを翻訳するショートカットキーを設定します。
+        </p>
+
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="shortcut-enabled">
+            <span data-i18n="checkboxEnableShortcut">ショートカットキーによる選択範囲翻訳を有効にする</span>
+          </label>
+        </div>
+
+        <div class="form-group" id="shortcut-key-wrapper">
+          <label for="shortcut-key-input" data-i18n="labelShortcutCombination">ショートカットキーの組み合わせ:</label>
+          <div class="shortcut-input-group">
+            <span class="key-badge">Alt</span>
+            <span class="key-plus">+</span>
+            <input type="text" id="shortcut-key-input" maxlength="1" class="key-char-input" placeholder="t" autocomplete="off">
+          </div>
+          <small class="help-text" data-i18n="helpShortcut">アルファベットまたは数字を1文字指定してください（デフォルト: t）。</small>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 16px 0;">
+
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="memo-shortcut-enabled">
+            <span data-i18n="checkboxEnableMemoShortcut">ショートカットキーによるメモ追加を有効にする</span>
+          </label>
+        </div>
+
+        <div class="form-group" id="memo-shortcut-key-wrapper">
+          <label for="memo-shortcut-key-input" data-i18n="labelMemoShortcutCombination">メモ追加ショートカットキーの組み合わせ:</label>
+          <div class="shortcut-input-group">
+            <span class="key-badge">Alt</span>
+            <span class="key-plus">+</span>
+            <input type="text" id="memo-shortcut-key-input" maxlength="1" class="key-char-input" placeholder="m" autocomplete="off">
+          </div>
+          <small class="help-text" data-i18n="helpMemoShortcut">アルファベットまたは数字を1文字指定してください（デフォルト: m）。</small>
+        </div>
+
+        <div class="btn-group">
+          <button id="save-shortcut-btn" class="btn btn-primary" data-i18n="btnSaveShortcut">ショートカット設定を保存</button>
+        </div>
+        <div id="shortcut-message" class="message"></div>
+      </section>
+
+      <!-- 6. 保存データの管理 -->
+      <section class="card">
+        <h2 data-i18n="sec6Title">6. 保存された翻訳データ・メモの管理</h2>
+        <p class="desc" data-i18n="sec6Desc">
+          ローカルストレージ (browser.storage.local) に保存されたメール翻訳データ・メモの整理、最大保持件数の自動管理、および削除を行います。
+        </p>
+
+        <div class="stats-box">
+          <div class="stat-item">
+            <span class="stat-num" id="saved-emails-count">-</span>
+            <span class="stat-label" data-i18n="labelSavedEmailsCount">保存済みメール数</span>
+          </div>
+        </div>
+
+        <!-- 最大保持件数の自動管理 -->
+        <div class="sub-card">
+          <h3 data-i18n="subcardAutoCleanupTitle">最大保持件数の自動管理</h3>
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="max-saved-enabled">
+              <span data-i18n="checkboxEnableAutoCleanup">最大保持件数を超えた場合に古い翻訳・メモを自動削除する</span>
+            </label>
+          </div>
+
+          <div class="form-group" id="max-saved-count-wrapper">
+            <label for="max-saved-count-input" data-i18n="labelMaxSavedCount">最大保持メール件数 (0〜3000):</label>
+            <div class="number-input-group">
+              <input type="number" id="max-saved-count-input" min="0" max="3000" step="10" value="1000">
+              <span class="unit-text" data-i18n="unitEmails">件</span>
+            </div>
+            <small class="help-text">
+              <span data-i18n="helpMaxSavedCountDesc">最大件数を超えた場合、操作が古いメールから翻訳・メモが自動的に削除されます。</span><br>
+              <span data-i18n="helpMaxSavedCountZero">※ 0 件に設定した場合は、翻訳テキストはストレージに一切保存されません。</span>
+            </small>
+          </div>
+
+          <div class="btn-group">
+            <button id="save-max-saved-btn" class="btn btn-primary" data-i18n="btnSaveMaxSaved">保持設定を保存</button>
+          </div>
+          <div id="max-saved-message" class="message"></div>
+        </div>
+
+        <!-- プログレスバー表示領域 -->
+        <div id="cleanup-progress-area" class="progress-container" style="display: none;">
+          <div class="progress-bar-bg">
+            <div id="cleanup-progress-bar" class="progress-bar-fill" style="width: 0%;"></div>
+          </div>
+          <div id="cleanup-progress-text" class="progress-text" data-i18n="cleanupProgressText">整理中...</div>
+        </div>
+
+        <div class="btn-group data-actions">
+          <button id="cleanup-btn" class="btn btn-secondary">
+            <span>🧹</span> <span data-i18n="btnCleanup">翻訳文章・メモを整理する</span>
+          </button>
+          <button id="clear-all-btn" class="btn btn-danger">
+            <span>🗑️</span> <span data-i18n="btnClearAll">翻訳文章・メモを全て削除する</span>
+          </button>
+        </div>
+        <div id="data-message" class="message"></div>
+      </section>
+
+      <!-- 7. 表示言語設定 -->
+      <section class="card">
+        <h2 data-i18n="sec7Title">7. 表示言語設定</h2>
+        <p class="desc" data-i18n="sec7Desc">アドオンの表示言語（UI、メニュー、通知）を選択します。</p>
+
+        <div class="form-group radio-group">
+          <label class="radio-label">
+            <input type="radio" name="ui-lang" value="auto" id="lang-auto" checked>
+            <span data-i18n="radioLangAuto">自動 (Thunderbird 本体の言語に合わせる)</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="ui-lang" value="ja" id="lang-ja">
+            <span data-i18n="radioLangJa">日本語 (Japanese)</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="ui-lang" value="en" id="lang-en">
+            <span data-i18n="radioLangEn">English (英語)</span>
+          </label>
+        </div>
+        <div id="lang-message" class="message"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../crypto.js"></script>
+  <script src="../i18n.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

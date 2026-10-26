@@ -1,0 +1,332 @@
+/* content.css - Gemini Thunderbird 翻訳スタイル */
+
+/* 翻訳ブロック Shadow Host コンテナ（内部UIは closed Shadow DOM 内にカプセル化） */
+.gemini-trans-block {
+  all: initial !important;
+  display: block !important;
+  margin-top: 6px !important;
+  margin-bottom: 6px !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  position: relative !important;
+  clear: both !important;
+  box-sizing: border-box !important;
+  width: auto !important;
+  max-width: 100% !important;
+  min-height: 0 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  filter: none !important;
+  clip: auto !important;
+  clip-path: none !important;
+  z-index: 1 !important;
+  contain: content !important;
+  content-visibility: auto !important;
+}
+
+/* 連続して並ぶカード同士は間隔を密着させる (2px) */
+.gemini-trans-block + .gemini-trans-block,
+.gemini-trans-block + br + .gemini-trans-block {
+  margin-top: 2px !important;
+}
+
+.gemini-trans-block:has(+ .gemini-trans-block),
+.gemini-trans-block:has(+ br + .gemini-trans-block) {
+  margin-bottom: 2px !important;
+}
+
+/* カード間に挟まった余分な br の行送りを排除して密着を維持 */
+.gemini-trans-block + br:has(+ .gemini-trans-block) {
+  display: none !important;
+}
+
+/* 全文翻訳ブロック Host */
+.gemini-full-trans-block {
+  margin-top: 4px !important;
+  margin-bottom: 16px !important;
+}
+
+/* 翻訳中ローディングブロック（フォールバック互換） */
+.gemini-trans-loading {
+  display: block !important;
+}
+
+.gemini-spinner {
+  width: 18px !important;
+  height: 18px !important;
+  border: 2px solid rgba(26, 115, 232, 0.2) !important;
+  border-top-color: #1a73e8 !important;
+  border-radius: 50% !important;
+  animation: gemini-spin 0.8s linear infinite !important;
+  display: inline-block !important;
+}
+
+@keyframes gemini-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ヘッダーエリア (バッジと削除ボタン) */
+.gemini-trans-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 6px !important;
+  padding-bottom: 4px !important;
+  border-bottom: 1px dashed rgba(26, 115, 232, 0.25) !important;
+  user-select: none !important;
+}
+
+.gemini-trans-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #0b57d0 !important;
+  letter-spacing: 0.3px !important;
+}
+
+.gemini-trans-badge-icon {
+  width: 13px !important;
+  height: 13px !important;
+  display: inline-block !important;
+}
+
+/* 削除ボタン（ホバー時に鮮明化） */
+.gemini-trans-delete-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #70757a !important;
+  cursor: pointer !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  transition: all 0.15s ease-in-out !important;
+  opacity: 0.6 !important;
+}
+
+.gemini-trans-block:hover .gemini-trans-delete-btn {
+  opacity: 1 !important;
+}
+
+.gemini-trans-delete-btn:hover {
+  background-color: #fce8e6 !important;
+  color: #c5221f !important;
+}
+
+/* 翻訳テキスト本文 */
+.gemini-trans-body {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  color: #1f1f1f !important;
+}
+
+/* 右クリック独自メニュー */
+.gemini-custom-context-menu {
+  position: fixed !important;
+  z-index: 2147483647 !important;
+  background: #ffffff !important;
+  border: 1px solid #dadce0 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  padding: 4px 0 !important;
+  min-width: 140px !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 13px !important;
+  user-select: none !important;
+}
+
+.gemini-custom-context-menu-item {
+  padding: 8px 14px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  color: #d93025 !important;
+  transition: background-color 0.1s ease !important;
+}
+
+.gemini-custom-context-menu-item:hover {
+  background-color: #fce8e6 !important;
+}
+
+/* トーストエラー通知 (3秒表示) */
+.gemini-trans-toast {
+  position: fixed !important;
+  top: 16px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 2147483646 !important;
+  background-color: #d93025 !important;
+  color: #ffffff !important;
+  padding: 10px 18px !important;
+  border-radius: 8px !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  box-shadow: 0 4px 14px rgba(217, 48, 37, 0.35) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  opacity: 0 !important;
+  transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out !important;
+  pointer-events: none !important;
+}
+
+.gemini-trans-toast.gemini-toast-visible {
+  opacity: 1 !important;
+  transform: translateX(-50%) translateY(0) !important;
+}
+
+/* PIN入力モーダルオーバーレイ */
+.gemini-pin-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  z-index: 2147483645 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  backdrop-filter: blur(2px) !important;
+}
+
+.gemini-pin-modal {
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  padding: 24px !important;
+  width: 320px !important;
+  max-width: 90% !important;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  text-align: left !important;
+  box-sizing: border-box !important;
+}
+
+.gemini-pin-modal-title {
+  margin: 0 0 8px 0 !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #1f1f1f !important;
+}
+
+.gemini-pin-modal-desc {
+  margin: 0 0 16px 0 !important;
+  font-size: 13px !important;
+  color: #5f6368 !important;
+  line-height: 1.4 !important;
+}
+
+.gemini-pin-modal-input {
+  width: 100% !important;
+  padding: 10px 12px !important;
+  border: 1px solid #dadce0 !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  box-sizing: border-box !important;
+  margin-bottom: 12px !important;
+  outline: none !important;
+}
+
+.gemini-pin-modal-input:focus {
+  border-color: #1a73e8 !important;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2) !important;
+}
+
+.gemini-pin-modal-error {
+  color: #d93025 !important;
+  font-size: 12px !important;
+  margin-bottom: 12px !important;
+  display: none !important;
+}
+
+.gemini-pin-modal-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+
+.gemini-pin-btn {
+  padding: 8px 16px !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  border: none !important;
+}
+
+.gemini-pin-btn-cancel {
+  background: #f1f3f4 !important;
+  color: #3c4043 !important;
+}
+
+.gemini-pin-btn-cancel:hover {
+  background: #e8eaed !important;
+}
+
+.gemini-pin-btn-submit {
+  background: #1a73e8 !important;
+  color: #ffffff !important;
+}
+
+.gemini-pin-btn-submit:hover {
+  background: #1557b0 !important;
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+  .gemini-trans-block,
+  .gemini-full-trans-block,
+  .gemini-trans-loading {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .gemini-spinner {
+    border-color: rgba(138, 180, 248, 0.2) !important;
+    border-top-color: #8ab4f8 !important;
+  }
+  .gemini-trans-badge {
+    color: #8ab4f8 !important;
+  }
+  .gemini-trans-body {
+    color: #e8eaed !important;
+  }
+  .gemini-trans-header {
+    border-bottom-color: rgba(138, 180, 248, 0.2) !important;
+  }
+  .gemini-custom-context-menu {
+    background: #282a2d !important;
+    border-color: #3c4043 !important;
+  }
+  .gemini-custom-context-menu-item {
+    color: #f28b82 !important;
+  }
+  .gemini-custom-context-menu-item:hover {
+    background-color: #3c4043 !important;
+  }
+  .gemini-pin-modal {
+    background: #282a2d !important;
+    color: #e8eaed !important;
+  }
+  .gemini-pin-modal-title {
+    color: #e8eaed !important;
+  }
+  .gemini-pin-modal-desc {
+    color: #9aa0a6 !important;
+  }
+  .gemini-pin-modal-input {
+    background: #1f1f1f !important;
+    border-color: #3c4043 !important;
+    color: #ffffff !important;
+  }
+  .gemini-pin-btn-cancel {
+    background: #3c4043 !important;
+    color: #e8eaed !important;
+  }
+}

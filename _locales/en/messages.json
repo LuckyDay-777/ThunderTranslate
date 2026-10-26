@@ -1,0 +1,521 @@
+{
+  "extensionName": {
+    "message": "ThunderTranslate",
+    "description": "Add-on name"
+  },
+  "extensionDescription": {
+    "message": "Translates received emails using Gemini API and displays translation directly inside the message.",
+    "description": "Add-on description"
+  },
+  "actionTitle": {
+    "message": "Translate Full Email",
+    "description": "Message header button title"
+  },
+  "actionShowTranslation": {
+    "message": "Show Translation",
+    "description": "Message header button: show translation"
+  },
+  "actionHideTranslation": {
+    "message": "Hide Translation",
+    "description": "Message header button: hide translation"
+  },
+  "menuTranslateFull": {
+    "message": "Translate full email",
+    "description": "Context menu: translate full message"
+  },
+  "menuTranslateSelection": {
+    "message": "Translate selected text",
+    "description": "Context menu: translate selection"
+  },
+  "translatingFull": {
+    "message": "Translating full message...",
+    "description": "Full translation loading message"
+  },
+  "translatingSelection": {
+    "message": "Translating selected text...",
+    "description": "Selection translation loading message"
+  },
+  "badgeTitle": {
+    "message": "Gemini Translation",
+    "description": "Translation card header badge"
+  },
+  "btnCopy": {
+    "message": "Copy",
+    "description": "Copy button"
+  },
+  "btnCopied": {
+    "message": "Copied!",
+    "description": "Copied state"
+  },
+  "btnDelete": {
+    "message": "Delete",
+    "description": "Delete button"
+  },
+  "toastCopySuccess": {
+    "message": "Translated text copied to clipboard",
+    "description": "Toast: copy success"
+  },
+  "toastCopyFailed": {
+    "message": "Failed to copy text",
+    "description": "Toast: copy failure"
+  },
+  "toastDeleteSuccess": {
+    "message": "Translation removed",
+    "description": "Toast: delete success"
+  },
+  "toastSelectText": {
+    "message": "Please select text to translate",
+    "description": "Toast: no text selected"
+  },
+  "pinModalTitle": {
+    "message": "Enter PIN Code",
+    "description": "PIN modal title"
+  },
+  "pinModalBadge": {
+    "message": "API Key Decryption",
+    "description": "PIN modal badge"
+  },
+  "pinModalDesc": {
+    "message": "Please enter the decryption PIN configured in add-on settings.",
+    "description": "PIN modal description"
+  },
+  "pinModalPlaceholder": {
+    "message": "Decryption PIN Code",
+    "description": "PIN input placeholder"
+  },
+  "pinModalSubmit": {
+    "message": "Unlock & Translate",
+    "description": "PIN submit button"
+  },
+  "pinModalCancel": {
+    "message": "Cancel",
+    "description": "PIN cancel button"
+  },
+  "pinModalEmpty": {
+    "message": "Please enter your PIN code.",
+    "description": "Empty PIN error"
+  },
+  "pinModalInvalid": {
+    "message": "Incorrect PIN code.",
+    "description": "Invalid PIN error"
+  },
+  "errApiKeyNotSet": {
+    "message": "API key is not configured. Please configure it in add-on settings.",
+    "description": "API key not configured error"
+  },
+  "errNoTextFound": {
+    "message": "No text found to translate.",
+    "description": "No text found error"
+  },
+  "errApiFailed": {
+    "message": "Gemini API error: $1",
+    "description": "API error",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "errNoMessageId": {
+    "message": "Failed to retrieve message ID.",
+    "description": "Message ID retrieval failure"
+  },
+  "errConnectionFailed": {
+    "message": "Internal add-on communication error. Please restart Thunderbird or try again.",
+    "description": "Communication error"
+  },
+  "optionsTitle": {
+    "message": "ThunderTranslate Settings",
+    "description": "Options page title"
+  },
+  "optionsSubtitle": {
+    "message": "Email translation and storage management",
+    "description": "Options page subtitle"
+  },
+  "sec1Title": {
+    "message": "1. Gemini API Key Settings",
+    "description": "Section 1 title"
+  },
+  "sec1Desc": {
+    "message": "Enter the API key obtained from Google AI Studio. The API key is securely encrypted using Web Crypto API (AES-GCM 256-bit) and stored locally.",
+    "description": "Section 1 description"
+  },
+  "statusChecking": {
+    "message": "Checking...",
+    "description": "Status checking"
+  },
+  "statusConfigured": {
+    "message": "Configured (Encrypted)",
+    "description": "Status configured"
+  },
+  "statusNotConfigured": {
+    "message": "Not configured",
+    "description": "Status not configured"
+  },
+  "labelApiKey": {
+    "message": "Gemini API Key:",
+    "description": "API key label"
+  },
+  "placeholderApiKeyConfigured": {
+    "message": "•••••••••••••••••••••••• (Saved)",
+    "description": "Saved API key placeholder"
+  },
+  "labelPin": {
+    "message": "Decryption PIN (4 or more digits or letters):",
+    "description": "PIN label"
+  },
+  "placeholderPin": {
+    "message": "e.g., 1234",
+    "description": "PIN placeholder"
+  },
+  "helpPin": {
+    "message": "You will be prompted for this PIN upon first translation after Thunderbird starts.",
+    "description": "PIN help text"
+  },
+  "btnSaveApi": {
+    "message": "Encrypt and Save",
+    "description": "Save API button"
+  },
+  "btnSavingApi": {
+    "message": "Encrypting...",
+    "description": "Saving API button loading text"
+  },
+  "sec2Title": {
+    "message": "2. Model Selection",
+    "description": "Section 2 title"
+  },
+  "sec2Desc": {
+    "message": "Select the Gemini model to use for translation. The list of available models is automatically updated when the API key is saved.",
+    "description": "Section 2 description"
+  },
+  "labelModel": {
+    "message": "Model:",
+    "description": "Model label"
+  },
+  "btnFetchModels": {
+    "message": "Refresh Model List",
+    "description": "Fetch models button"
+  },
+  "btnFetchingModels": {
+    "message": "Fetching...",
+    "description": "Fetching models button loading text"
+  },
+  "sec3Title": {
+    "message": "3. Translation Prompt Settings",
+    "description": "Section 3 title"
+  },
+  "sec3Desc": {
+    "message": "Select and customize 5 translation prompt presets sent to Gemini.",
+    "description": "Section 3 description"
+  },
+  "labelPromptPreset": {
+    "message": "Prompt Preset:",
+    "description": "Prompt preset label"
+  },
+  "presetBusiness": {
+    "message": "Business",
+    "description": "Business preset name"
+  },
+  "presetNuko": {
+    "message": "Nuko (Cat Maid)",
+    "description": "Nuko preset name"
+  },
+  "presetUser1": {
+    "message": "User 1",
+    "description": "User 1 preset name"
+  },
+  "presetUser2": {
+    "message": "User 2",
+    "description": "User 2 preset name"
+  },
+  "presetUser3": {
+    "message": "User 3",
+    "description": "User 3 preset name"
+  },
+  "labelPromptText": {
+    "message": "Prompt Text:",
+    "description": "Prompt text label"
+  },
+  "btnSavePrompt": {
+    "message": "Save Prompt",
+    "description": "Save prompt button"
+  },
+  "btnResetPrompt": {
+    "message": "Reset Selected Preset to Default",
+    "description": "Reset prompt button"
+  },
+  "sec4Title": {
+    "message": "4. LLM Parameter Settings",
+    "description": "Section 4 title"
+  },
+  "sec4Desc": {
+    "message": "Configure generation parameters (Temperature, Top-K, Top-P, Random Seed) and safety filter thresholds for Gemini.",
+    "description": "Section 4 description"
+  },
+  "labelTemperature": {
+    "message": "Temperature:",
+    "description": "Temperature setting label"
+  },
+  "helpTemperature": {
+    "message": "Higher values produce more creative responses, while lower values produce more consistent and deterministic translations (Default: 0.5, Range: 0 to 2).",
+    "description": "Temperature setting help"
+  },
+  "labelTopK": {
+    "message": "Top-K (1 to 40):",
+    "description": "Top-K setting label"
+  },
+  "helpTopK": {
+    "message": "Specifies the maximum pool of tokens to consider for each step (Default: 7, Range: 1 to 40).",
+    "description": "Top-K setting help"
+  },
+  "labelTopP": {
+    "message": "Top-P (0.01 to 1.00):",
+    "description": "Top-P setting label"
+  },
+  "helpTopP": {
+    "message": "Tokens are selected from the most probable whose cumulative probability exceeds Top-P (Default: 0.90, Range: 0.01 to 1.00).",
+    "description": "Top-P setting help"
+  },
+  "labelSeed": {
+    "message": "Random Seed:",
+    "description": "Seed setting label"
+  },
+  "labelSeedRandom": {
+    "message": "Random (Default: Allows natural variation on each translation)",
+    "description": "Seed: Random"
+  },
+  "labelSeedFixed": {
+    "message": "Fixed value (Produces repeatable translations):",
+    "description": "Seed: Fixed value"
+  },
+  "helpSeed": {
+    "message": "Setting a fixed seed helps generate deterministic results for the same input text (Range: 0 to 4294967295).",
+    "description": "Seed setting help"
+  },
+  "labelMaxOutputTokens": {
+    "message": "Max Output Tokens:",
+    "description": "Max Output Tokens label"
+  },
+  "unitTokens": {
+    "message": "Tokens",
+    "description": "Tokens unit"
+  },
+  "helpMaxOutputTokens": {
+    "message": "Specifies the maximum number of tokens generated in a single response (Default: 5000 Tokens, Range: 100 to 65536).",
+    "description": "Max Output Tokens help"
+  },
+  "labelMaxTranslationChars": {
+    "message": "Max Preprocessing Input Size (MAX_TRANSLATION_CHARS):",
+    "description": "MAX_TRANSLATION_CHARS label"
+  },
+  "unitBytes": {
+    "message": "byte",
+    "description": "Byte unit"
+  },
+  "helpMaxTranslationChars": {
+    "message": "Specifies the maximum email text size allowed for preprocessing and API requests to prevent memory exhaustion (Default: 50000 byte, Range: 1000 to 500000).",
+    "description": "MAX_TRANSLATION_CHARS help"
+  },
+  "subcardSafetyTitle": {
+    "message": "Safety Settings",
+    "description": "Safety settings title"
+  },
+  "subcardSafetyDesc": {
+    "message": "Configure filter thresholds for inappropriate or harmful content (Default: Block only high).",
+    "description": "Safety settings description"
+  },
+  "catHarassment": {
+    "message": "Harassment:",
+    "description": "Category: Harassment"
+  },
+  "catHateSpeech": {
+    "message": "Hate Speech:",
+    "description": "Category: Hate Speech"
+  },
+  "catSexuallyExplicit": {
+    "message": "Sexually Explicit:",
+    "description": "Category: Sexually Explicit"
+  },
+  "catDangerousContent": {
+    "message": "Dangerous Content:",
+    "description": "Category: Dangerous Content"
+  },
+  "optBlockLow": {
+    "message": "Block low and above (Most strict)",
+    "description": "Threshold: Block low and above"
+  },
+  "optBlockMedium": {
+    "message": "Block medium and above (Standard)",
+    "description": "Threshold: Block medium and above"
+  },
+  "optBlockHigh": {
+    "message": "Block only high (Default)",
+    "description": "Threshold: Block only high"
+  },
+  "optBlockNone": {
+    "message": "Block none (Disabled)",
+    "description": "Threshold: Block none"
+  },
+  "btnSaveLlmParams": {
+    "message": "Save Parameters",
+    "description": "Save LLM parameters button"
+  },
+  "btnResetLlmParams": {
+    "message": "Reset to Defaults",
+    "description": "Reset LLM parameters button"
+  },
+  "msgLlmParamsSaved": {
+    "message": "LLM parameters saved.",
+    "description": "LLM parameters saved message"
+  },
+  "msgLlmParamsReset": {
+    "message": "LLM parameters reset to defaults.",
+    "description": "LLM parameters reset message"
+  },
+  "sec5Title": {
+    "message": "5. Shortcut Key Settings",
+    "description": "Section 5 title"
+  },
+  "sec5Desc": {
+    "message": "Configure a shortcut key to quickly translate selected email text.",
+    "description": "Section 5 description"
+  },
+  "checkboxEnableShortcut": {
+    "message": "Enable shortcut key for selected text translation",
+    "description": "Shortcut enable checkbox"
+  },
+  "labelShortcutCombination": {
+    "message": "Shortcut Key Combination:",
+    "description": "Shortcut combination label"
+  },
+  "helpShortcut": {
+    "message": "Enter a single alphanumeric letter or number (Default: t).",
+    "description": "Shortcut help text"
+  },
+  "btnSaveShortcut": {
+    "message": "Save Shortcut Settings",
+    "description": "Save shortcut button"
+  },
+  "sec6Title": {
+    "message": "6. Storage & Translation Data / Memos Management",
+    "description": "Section 6 title"
+  },
+  "sec6Desc": {
+    "message": "Organize email translation data and memos in local storage (browser.storage.local), manage retention limits, and delete records.",
+    "description": "Section 6 description"
+  },
+  "labelSavedEmailsCount": {
+    "message": "Saved Emails Count",
+    "description": "Saved emails count label"
+  },
+  "subcardAutoCleanupTitle": {
+    "message": "Automatic Retention Limit",
+    "description": "Auto cleanup subcard title"
+  },
+  "checkboxEnableAutoCleanup": {
+    "message": "Automatically delete oldest translations and memos when limit is exceeded",
+    "description": "Auto cleanup checkbox"
+  },
+  "labelMaxSavedCount": {
+    "message": "Max Saved Emails (0 to 3000):",
+    "description": "Max saved count label"
+  },
+  "unitEmails": {
+    "message": "items",
+    "description": "Unit of emails"
+  },
+  "helpMaxSavedCountDesc": {
+    "message": "When the limit is exceeded, translations and memos with the oldest activity will be deleted automatically.",
+    "description": "Max saved count help description"
+  },
+  "helpMaxSavedCountZero": {
+    "message": "※ Setting to 0 prevents translations from being stored locally.",
+    "description": "Max saved count help note for 0"
+  },
+  "btnSaveMaxSaved": {
+    "message": "Save Retention Settings",
+    "description": "Save retention settings button"
+  },
+  "cleanupProgressText": {
+    "message": "Cleaning up...",
+    "description": "Cleanup progress text"
+  },
+  "btnCleanup": {
+    "message": "Clean Up Translations & Memos",
+    "description": "Clean up button"
+  },
+  "btnClearAll": {
+    "message": "Delete All Translations & Memos",
+    "description": "Delete all button"
+  },
+  "confirmClearAll": {
+    "message": "Are you sure you want to delete all saved translation and memo data? This action cannot be undone.",
+    "description": "Delete all confirm dialog"
+  },
+  "confirmCleanup": {
+    "message": "Clean up orphaned translation and memo entries for deleted or nonexistent emails?",
+    "description": "Cleanup confirm dialog"
+  },
+  "sec7Title": {
+    "message": "7. Language Settings",
+    "description": "Language settings section title"
+  },
+  "sec7Desc": {
+    "message": "Choose the display language for the add-on (UI, menus, notifications).",
+    "description": "Language settings section description"
+  },
+  "radioLangAuto": {
+    "message": "Auto (Match Thunderbird language)",
+    "description": "Language: Auto"
+  },
+  "radioLangJa": {
+    "message": "日本語 (Japanese)",
+    "description": "Language: Japanese"
+  },
+  "radioLangEn": {
+    "message": "English",
+    "description": "Language: English"
+  },
+  "msgLangChanged": {
+    "message": "Display language updated.",
+    "description": "Language changed message"
+  },
+  "menuAddMemo": {
+    "message": "Add Memo",
+    "description": "Context menu: Add Memo"
+  },
+  "memoBadgeTitle": {
+    "message": "Memo",
+    "description": "Memo card header badge"
+  },
+  "memoPlaceholder": {
+    "message": "Write a note here... (auto-saved)",
+    "description": "Memo textarea placeholder"
+  },
+  "memoStatusSaving": {
+    "message": "Saving...",
+    "description": "Memo saving status"
+  },
+  "memoStatusSaved": {
+    "message": "Saved",
+    "description": "Memo saved status"
+  },
+  "btnDeleteMemo": {
+    "message": "Delete this memo",
+    "description": "Delete memo button"
+  },
+  "toastMemoDeleted": {
+    "message": "Memo deleted.",
+    "description": "Toast: Memo deleted"
+  },
+  "checkboxEnableMemoShortcut": {
+    "message": "Enable keyboard shortcut for adding a memo",
+    "description": "Enable memo shortcut checkbox"
+  },
+  "labelMemoShortcutCombination": {
+    "message": "Memo Shortcut Key Combination:",
+    "description": "Memo shortcut key combination label"
+  },
+  "helpMemoShortcut": {
+    "message": "Specify a single letter or number (Default: m).",
+    "description": "Memo shortcut key help text"
+  }
+}
