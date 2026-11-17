@@ -9,15 +9,19 @@
   },
   "actionTitle": {
     "message": "Translate Full Email",
-    "description": "Message header button title"
+    "description": "Message header button: no translations"
   },
-  "actionShowTranslation": {
-    "message": "Show Translation",
-    "description": "Message header button: show translation"
+  "actionHideTranslationOnly": {
+    "message": "Hide Translations",
+    "description": "Message header button: hide translations only"
   },
-  "actionHideTranslation": {
-    "message": "Hide Translation",
-    "description": "Message header button: hide translation"
+  "actionHideAll": {
+    "message": "Hide Translations & Memos",
+    "description": "Message header button: hide translations and memos"
+  },
+  "actionShowAll": {
+    "message": "Show Translations",
+    "description": "Message header button: show translations and memos"
   },
   "menuTranslateFull": {
     "message": "Translate full email",
@@ -289,6 +293,42 @@
   "helpSeed": {
     "message": "Setting a fixed seed helps generate deterministic results for the same input text (Range: 0 to 4294967295).",
     "description": "Seed setting help"
+  },
+  "labelThinkingLevel": {
+    "message": "Thinking Level:",
+    "description": "Thinking Level setting label"
+  },
+  "thinkingLevelDefault": {
+    "message": "Default (Model standard)",
+    "description": "Thinking Level: Default"
+  },
+  "thinkingLevelMinimal": {
+    "message": "Minimal",
+    "description": "Thinking Level: Minimal"
+  },
+  "thinkingLevelLow": {
+    "message": "Low",
+    "description": "Thinking Level: Low"
+  },
+  "thinkingLevelMedium": {
+    "message": "Medium",
+    "description": "Thinking Level: Medium"
+  },
+  "thinkingLevelHigh": {
+    "message": "High",
+    "description": "Thinking Level: High"
+  },
+  "thinkingLevelXHigh": {
+    "message": "Extra High (XHigh)",
+    "description": "Thinking Level: XHigh"
+  },
+  "helpThinkingLevel": {
+    "message": "Specifies the internal reasoning depth for supported models (such as Gemini 3 / 4 series). Default or Low/Medium is usually fastest for translation.",
+    "description": "Thinking Level setting help"
+  },
+  "noteThinkingLevelUnsupported": {
+    "message": "* Disabled because the currently selected model does not support Thinking Level configuration.",
+    "description": "Thinking Level unsupported model note"
   },
   "labelMaxOutputTokens": {
     "message": "Max Output Tokens:",

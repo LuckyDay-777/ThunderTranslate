@@ -119,6 +119,7 @@ const APP_SETTINGS_KEYS = [
   'geminiTopP',
   'geminiSeedMode',
   'geminiSeed',
+  'geminiThinkingLevel',
   'geminiMaxOutputTokens',
   'maxTranslationChars',
   'geminiSafetySettings',
@@ -780,12 +781,21 @@ async function updateToolbarButtonTitle(tabId, headerMessageId, preloadedRecord 
       }
     }
 
+    const hasFull = !!(record && record.fullTranslation && record.fullTranslation.translatedText);
+    const hasPartial = !!(record && Array.isArray(record.partialTranslations) && record.partialTranslations.length > 0);
+    const hasAnyTranslation = hasFull || hasPartial;
+
     let title = (typeof I18n !== 'undefined') ? I18n.getMessage('actionTitle') : '全文を翻訳';
-    if (record && record.fullTranslation && record.fullTranslation.translatedText) {
-      if (record.fullTranslation.hidden) {
-        title = (typeof I18n !== 'undefined') ? I18n.getMessage('actionShowTranslation') : '翻訳を表示';
+
+    if (hasAnyTranslation) {
+      const mode = (record && record.visibilityMode) ? record.visibilityMode : 'visible';
+      if (mode === 'hide_translations') {
+        title = (typeof I18n !== 'undefined') ? I18n.getMessage('actionHideAll') : '翻訳文章・メモを非表示';
+      } else if (mode === 'hide_all') {
+        title = (typeof I18n !== 'undefined') ? I18n.getMessage('actionShowAll') : '翻訳文章を表示';
       } else {
-        title = (typeof I18n !== 'undefined') ? I18n.getMessage('actionHideTranslation') : '翻訳を非表示';
+        // 'visible' または初期状態
+        title = (typeof I18n !== 'undefined') ? I18n.getMessage('actionHideTranslationOnly') : '翻訳文章を非表示';
       }
     }
 
@@ -1267,6 +1277,17 @@ function preprocessEmailTextForApi(rawText, maxBytes = 50000) {
   return finalTruncated.text;
 }
 
+function supportsThinkingLevel(modelName) {
+  if (!modelName || typeof modelName !== 'string') return false;
+  const normalized = modelName.replace(/^models\//, '').toLowerCase();
+  if (/(?:image|imagen|tts|audio|embedding|aqa|veo|lyria|robotics)/i.test(normalized)) {
+    return false;
+  }
+  const match = normalized.match(/^gemini-(\d+)(?:\.(\d+))?(?:-|$)/);
+  if (!match) return false;
+  return parseInt(match[1], 10) >= 3;
+}
+
 async function callGeminiApi(apiKey, model, prompt, text, generationConfig = null, safetySettings = null, maxBytes = 50000) {
   const sanitizedText = preprocessEmailTextForApi(text, maxBytes);
   if (!sanitizedText) {
@@ -1349,7 +1370,10 @@ async function callGeminiApi(apiKey, model, prompt, text, generationConfig = nul
     data.candidates[0].content.parts &&
     data.candidates[0].content.parts.length > 0
   ) {
-    const rawOutput = data.candidates[0].content.parts[0].text || '';
+    const rawOutput = data.candidates[0].content.parts
+      .filter((p) => !p.thought && typeof p.text === 'string')
+      .map((p) => p.text)
+      .join('');
     return sanitizeModelOutputText(rawOutput);
   } else if (data && data.candidates && data.candidates.length > 0 && data.candidates[0].finishReason === 'SAFETY') {
     const isEn = (typeof I18n !== 'undefined' && I18n.getActiveLanguage() === 'en');
@@ -1531,6 +1555,16 @@ extApi.runtime.onMessage.addListener((message, sender, sendResponse) => {
           if (settings.geminiSeedMode === 'fixed' && typeof settings.geminiSeed === 'number') {
             generationConfig.seed = settings.geminiSeed;
           }
+          const allowedThinkingLevels = ['minimal', 'low', 'medium', 'high', 'xhigh'];
+          if (
+            supportsThinkingLevel(model) &&
+            typeof settings.geminiThinkingLevel === 'string' &&
+            allowedThinkingLevels.includes(settings.geminiThinkingLevel.toLowerCase())
+          ) {
+            generationConfig.thinkingConfig = {
+              thinkingLevel: settings.geminiThinkingLevel.toUpperCase()
+            };
+          }
 
           const safetyMap = settings.geminiSafetySettings || {};
           const safetyCategories = [
@@ -1627,10 +1661,8 @@ extApi.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }
           }
 
-          if (isFull) {
-            await updateToolbarButtonTitle(tabId, targetMsgId, {
-              fullTranslation: { translatedText, hidden: false }
-            });
+          if (targetMsgId) {
+            await updateToolbarButtonTitle(tabId, targetMsgId);
           }
 
           return {
@@ -1707,6 +1739,30 @@ extApi.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return { success: true };
       }
 
+      case 'UPDATE_TRANSLATION_VISIBILITY_MODE': {
+        const tabId = sender.tab ? sender.tab.id : null;
+        const headerMessageId = await resolveCurrentMessageId(message.headerMessageId, tabId);
+        const mode = message.mode || 'visible';
+
+        let updatedRecord = null;
+        if (headerMessageId) {
+          const key = `translations_${headerMessageId}`;
+          await withStorageLock(key, async () => {
+            const data = await extApi.storage.local.get(key);
+            const record = data[key];
+            if (record) {
+              record.visibilityMode = mode;
+              record.updatedAt = Date.now();
+              await extApi.storage.local.set({ [key]: record });
+              updatedRecord = record;
+            }
+          });
+        }
+
+        await updateToolbarButtonTitle(tabId, headerMessageId, updatedRecord);
+        return { success: true };
+      }
+
       case 'DELETE_TRANSLATION_RECORD': {
         const tabId = sender.tab ? sender.tab.id : null;
         const headerMessageId = await resolveCurrentMessageId(message.headerMessageId, tabId);
@@ -1747,7 +1803,7 @@ extApi.runtime.onMessage.addListener((message, sender, sendResponse) => {
           });
         }
 
-        if (isFull) {
+        if (headerMessageId) {
           await updateToolbarButtonTitle(tabId, headerMessageId, updatedRecord);
         }
         return { success: true };

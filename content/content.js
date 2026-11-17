@@ -15,6 +15,7 @@
 
   let currentMessageId = null;
   let lastRestoredMessageId = null;
+  let currentVisibilityMode = 'visible';
   let activeContextMenu = null;
 
   // 1.① 偽造翻訳カード（UIスプーフィング）対策: アドオン自身が生成した正規DOM要素のみを登録する WeakSet
@@ -431,7 +432,8 @@
           'gemini-trans-loading',
           'gemini-pin-modal-overlay',
           'gemini-trans-toast',
-          'gemini-custom-context-menu'
+          'gemini-custom-context-menu',
+          'gemini-card-hidden'
         );
         el.removeAttribute('data-gemini-full');
         el.removeAttribute('data-gemini-id');
@@ -1076,6 +1078,15 @@
       syncOrderIndicesAtOffset(endGlobalOffset);
     }
 
+    const remainingTransBlocks = document.querySelectorAll('.gemini-trans-block:not(.gemini-memo-block)');
+    let remainingTransCount = 0;
+    for (const b of remainingTransBlocks) {
+      if (authenticAddonElements.has(b)) remainingTransCount++;
+    }
+    if (remainingTransCount === 0) {
+      applyVisibilityMode('visible');
+    }
+
     await safeSendMessage({
       action: 'DELETE_TRANSLATION_RECORD',
       headerMessageId: currentMessageId,
@@ -1114,6 +1125,7 @@
    * ---------------------------------------------------- */
   async function clearAllTranslationsFromDom(notifyBackground = true) {
     lastRestoredMessageId = null;
+    currentVisibilityMode = 'visible';
     neutralizeSpoofedAddonElements(document.body);
     const blocks = document.querySelectorAll('.gemini-trans-block:not(.gemini-memo-block)');
     let count = 0;
@@ -1125,6 +1137,14 @@
       if (nextBr && nextBr.nodeName === 'BR') nextBr.remove();
       block.remove();
       count++;
+    });
+
+    // 残っているメモカードの非表示クラスを解除
+    const memoBlocks = document.querySelectorAll('.gemini-memo-block');
+    memoBlocks.forEach((memo) => {
+      if (authenticAddonElements.has(memo)) {
+        memo.classList.remove('gemini-card-hidden');
+      }
     });
 
     if (notifyBackground) {
@@ -1945,8 +1965,57 @@
   }
 
   /* ----------------------------------------------------
-   * 8. 全文翻訳の表示・トグル
+   * 8. 全文翻訳の表示・トグル / 表示切り替えループ
+   * - 翻訳テキストが0個の場合: メール全文を翻訳
+   * - 翻訳テキストが1個以上の場合:
+   *   「翻訳文章を非表示」→「翻訳文章・メモを非表示」→「翻訳文章を表示」のループ
    * ---------------------------------------------------- */
+  function applyVisibilityMode(mode) {
+    currentVisibilityMode = mode;
+    neutralizeSpoofedAddonElements(document.body);
+    const transBlocks = document.querySelectorAll('.gemini-trans-block:not(.gemini-memo-block)');
+    const memoBlocks = document.querySelectorAll('.gemini-memo-block');
+
+    if (mode === 'hide_translations') {
+      // 全翻訳テキストを非表示、メモだけを表示
+      for (const b of transBlocks) {
+        if (authenticAddonElements.has(b)) {
+          b.classList.add('gemini-card-hidden');
+        }
+      }
+      for (const m of memoBlocks) {
+        if (authenticAddonElements.has(m)) {
+          m.classList.remove('gemini-card-hidden');
+        }
+      }
+    } else if (mode === 'hide_all') {
+      // 全翻訳テキストとメモを非表示
+      for (const b of transBlocks) {
+        if (authenticAddonElements.has(b)) {
+          b.classList.add('gemini-card-hidden');
+        }
+      }
+      for (const m of memoBlocks) {
+        if (authenticAddonElements.has(m)) {
+          m.classList.add('gemini-card-hidden');
+        }
+      }
+    } else {
+      // 'visible': 全翻訳テキストとメモを表示
+      currentVisibilityMode = 'visible';
+      for (const b of transBlocks) {
+        if (authenticAddonElements.has(b)) {
+          b.classList.remove('gemini-card-hidden');
+        }
+      }
+      for (const m of memoBlocks) {
+        if (authenticAddonElements.has(m)) {
+          m.classList.remove('gemini-card-hidden');
+        }
+      }
+    }
+  }
+
   async function toggleFullTranslation() {
     if (isTogglingFull) {
       return;
@@ -1954,28 +2023,37 @@
     isTogglingFull = true;
 
     try {
-      const existingBlock = findAuthenticFullTransBlock();
+      neutralizeSpoofedAddonElements(document.body);
+      const transBlocks = document.querySelectorAll('.gemini-trans-block:not(.gemini-memo-block)');
+      let authenticTransCount = 0;
+      for (const b of transBlocks) {
+        if (authenticAddonElements.has(b)) {
+          authenticTransCount++;
+        }
+      }
 
-      if (existingBlock && existingBlock.style.display !== 'none' && !existingBlock.classList.contains('gemini-trans-loading')) {
-        existingBlock.style.display = 'none';
+      // 翻訳テキストが1つ以上存在する場合は3段階ループを実行
+      if (authenticTransCount > 0) {
+        let nextMode = 'hide_translations';
+        if (currentVisibilityMode === 'hide_translations') {
+          nextMode = 'hide_all';
+        } else if (currentVisibilityMode === 'hide_all') {
+          nextMode = 'visible';
+        } else {
+          nextMode = 'hide_translations';
+        }
+
+        applyVisibilityMode(nextMode);
+
         await safeSendMessage({
-          action: 'UPDATE_FULL_TRANSLATION_VISIBILITY',
+          action: 'UPDATE_TRANSLATION_VISIBILITY_MODE',
           headerMessageId: currentMessageId,
-          hidden: true
+          mode: nextMode
         });
         return;
       }
 
-      if (existingBlock && existingBlock.style.display === 'none') {
-        existingBlock.style.display = 'block';
-        await safeSendMessage({
-          action: 'UPDATE_FULL_TRANSLATION_VISIBILITY',
-          headerMessageId: currentMessageId,
-          hidden: false
-        });
-        return;
-      }
-
+      // 翻訳テキストが全くない場合は「全文を翻訳」を実行
       const rawFullText = document.body
         ? withHiddenDeceptiveElements(document.body, () => document.body.innerText.trim())
         : '';
@@ -2299,6 +2377,9 @@
         }
       }
 
+      // 新規翻訳完了時は表示モードを visible にリセット
+      applyVisibilityMode('visible');
+
       break;
     }
   }
@@ -2334,15 +2415,10 @@
       if (mid) existingMemoIds.add(mid);
     }
 
-    // 1. 全文翻訳の復元（既にDOM上に存在する場合は再生成せず表示状態のみ同期）
+    // 1. 全文翻訳の復元（既にDOM上に存在する場合は再生成せず描画）
     if (savedData.fullTranslation && savedData.fullTranslation.translatedText) {
-      if (existingFullBlock && existingFullBlock.isConnected) {
-        existingFullBlock.style.display = savedData.fullTranslation.hidden ? 'none' : 'block';
-      } else {
+      if (!existingFullBlock || !existingFullBlock.isConnected) {
         const fullCard = createTranslationCard(savedData.fullTranslation.translatedText, { isFull: true });
-        if (savedData.fullTranslation.hidden) {
-          fullCard.style.display = 'none';
-        }
         document.body.insertBefore(fullCard, document.body.firstChild);
       }
     }
@@ -2530,6 +2606,11 @@
         insertCardGroupAt(point, cardElements);
       }
     }
+
+    // 保存されていた表示モード（または互換用の旧hiddenフラグ）を反映
+    const targetMode = savedData.visibilityMode ||
+      (savedData.fullTranslation && savedData.fullTranslation.hidden ? 'hide_translations' : 'visible');
+    applyVisibilityMode(targetMode);
 
     return true;
   }

@@ -9,15 +9,19 @@
   },
   "actionTitle": {
     "message": "全文を翻訳",
-    "description": "メッセージヘッダーボタンのタイトル"
+    "description": "メッセージヘッダーボタン: 翻訳未実行時"
   },
-  "actionShowTranslation": {
-    "message": "翻訳を表示",
-    "description": "メッセージヘッダーボタン: 翻訳表示"
+  "actionHideTranslationOnly": {
+    "message": "翻訳文章を非表示",
+    "description": "メッセージヘッダーボタン: 翻訳文章を非表示"
   },
-  "actionHideTranslation": {
-    "message": "翻訳を非表示",
-    "description": "メッセージヘッダーボタン: 翻訳非表示"
+  "actionHideAll": {
+    "message": "翻訳文章・メモを非表示",
+    "description": "メッセージヘッダーボタン: 翻訳文章とメモを非表示"
+  },
+  "actionShowAll": {
+    "message": "翻訳文章を表示",
+    "description": "メッセージヘッダーボタン: 翻訳文章とメモを表示"
   },
   "menuTranslateFull": {
     "message": "メール全文を翻訳",
@@ -289,6 +293,42 @@
   "helpSeed": {
     "message": "固定値を指定すると、同じ入力テキストに対して決定論的な同一結果が得られやすくなります (範囲: 0〜4294967295)。",
     "description": "シード設定ヘルプ"
+  },
+  "labelThinkingLevel": {
+    "message": "思考レベル (Thinking Level):",
+    "description": "思考レベル設定ラベル"
+  },
+  "thinkingLevelDefault": {
+    "message": "デフォルト（モデル標準）",
+    "description": "思考レベル: デフォルト"
+  },
+  "thinkingLevelMinimal": {
+    "message": "最小 (Minimal)",
+    "description": "思考レベル: 最小"
+  },
+  "thinkingLevelLow": {
+    "message": "低 (Low)",
+    "description": "思考レベル: 低"
+  },
+  "thinkingLevelMedium": {
+    "message": "中 (Medium)",
+    "description": "思考レベル: 中"
+  },
+  "thinkingLevelHigh": {
+    "message": "高 (High)",
+    "description": "思考レベル: 高"
+  },
+  "thinkingLevelXHigh": {
+    "message": "最高 (XHigh)",
+    "description": "思考レベル: 最高"
+  },
+  "helpThinkingLevel": {
+    "message": "対応モデル（Gemini 3 / 4 系など）における内部推論（思考）の深さを指定します。通常はデフォルトまたは低・中で高速に翻訳できます。",
+    "description": "思考レベル設定ヘルプ"
+  },
+  "noteThinkingLevelUnsupported": {
+    "message": "※ 現在選択中のモデルは思考レベル（thinkingLevel）の設定に対応していないため無効化されています。",
+    "description": "思考レベル非対応モデルの注記"
   },
   "labelMaxOutputTokens": {
     "message": "最大出力トークン数 (Max Output Tokens):",

@@ -150,6 +150,21 @@
           <small class="help-text" data-i18n="helpSeed">固定値を指定すると、同じ入力テキストに対して決定論的な同一結果が得られやすくなります (範囲: 0〜4294967295)。</small>
         </div>
 
+        <!-- Thinking Level -->
+        <div class="form-group" id="thinking-level-group">
+          <label for="thinking-level-select" data-i18n="labelThinkingLevel">思考レベル (Thinking Level):</label>
+          <select id="thinking-level-select">
+            <option value="default" data-i18n="thinkingLevelDefault">デフォルト（モデル標準）</option>
+            <option value="minimal" data-i18n="thinkingLevelMinimal">最小 (Minimal)</option>
+            <option value="low" data-i18n="thinkingLevelLow">低 (Low)</option>
+            <option value="medium" data-i18n="thinkingLevelMedium">中 (Medium)</option>
+            <option value="high" data-i18n="thinkingLevelHigh">高 (High)</option>
+            <option value="xhigh" data-i18n="thinkingLevelXHigh">最高 (XHigh)</option>
+          </select>
+          <small class="help-text" data-i18n="helpThinkingLevel">対応モデル（Gemini 3 / 4 系など）における内部推論（思考）の深さを指定します。通常はデフォルトまたは低・中で高速に翻訳できます。</small>
+          <small class="help-text thinking-unsupported-note" id="thinking-level-unsupported-note" data-i18n="noteThinkingLevelUnsupported" style="display: none;">※ 現在選択中のモデルは思考レベル（thinkingLevel）の設定に対応していないため無効化されています。</small>
+        </div>
+
         <!-- Max Output Tokens -->
         <div class="form-group">
           <label for="max-output-tokens-input" data-i18n="labelMaxOutputTokens">最大出力トークン数 (Max Output Tokens):</label>

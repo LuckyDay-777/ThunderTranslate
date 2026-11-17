@@ -76,6 +76,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const seedModeFixed = document.getElementById('seed-mode-fixed');
   const seedInputWrapper = document.getElementById('seed-input-wrapper');
   const seedValueInput = document.getElementById('seed-value-input');
+  const thinkingLevelGroup = document.getElementById('thinking-level-group');
+  const thinkingLevelSelect = document.getElementById('thinking-level-select');
+  const thinkingLevelUnsupportedNote = document.getElementById('thinking-level-unsupported-note');
   const maxOutputTokensInput = document.getElementById('max-output-tokens-input');
   const maxTranslationCharsInput = document.getElementById('max-translation-chars-input');
   const safetyHarassment = document.getElementById('safety-harassment');
@@ -174,6 +177,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  /**
+   * 選択中のモデルが思考レベル (thinkingLevel) 設定に対応しているかを判定する
+   * @param {string} modelName
+   * @returns {boolean}
+   */
+  function supportsThinkingLevel(modelName) {
+    if (!modelName || typeof modelName !== 'string') return false;
+    const normalized = modelName.replace(/^models\//, '').toLowerCase();
+    if (/(?:image|imagen|tts|audio|embedding|aqa|veo|lyria|robotics)/i.test(normalized)) {
+      return false;
+    }
+    const match = normalized.match(/^gemini-(\d+)(?:\.(\d+))?(?:-|$)/);
+    if (!match) return false;
+    return parseInt(match[1], 10) >= 3;
+  }
+
+  /**
+   * 選択中のモデルに応じて思考レベル設定の有効/グレーアウト状態を更新する
+   */
+  function updateThinkingLevelState() {
+    if (!thinkingLevelSelect || !modelSelect) return;
+    const supported = supportsThinkingLevel(modelSelect.value);
+    thinkingLevelSelect.disabled = !supported;
+    if (thinkingLevelGroup) {
+      thinkingLevelGroup.classList.toggle('is-disabled', !supported);
+    }
+    if (thinkingLevelUnsupportedNote) {
+      thinkingLevelUnsupportedNote.style.display = supported ? 'none' : 'block';
+    }
+  }
+
   // 1. 初期設定の読み込み
   async function loadSettings() {
     const data = await browser.storage.local.get([
@@ -187,6 +221,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       'geminiTopP',
       'geminiSeedMode',
       'geminiSeed',
+      'geminiThinkingLevel',
       'geminiMaxOutputTokens',
       'maxTranslationChars',
       'geminiSafetySettings',
@@ -251,6 +286,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       seedInputWrapper.style.display = isFixed ? 'block' : 'none';
       seedValueInput.value = (typeof data.geminiSeed === 'number') ? data.geminiSeed : 0;
     }
+    if (thinkingLevelSelect) {
+      const allowedLevels = ['default', 'minimal', 'low', 'medium', 'high', 'xhigh'];
+      const savedLevel = (typeof data.geminiThinkingLevel === 'string') ? data.geminiThinkingLevel.toLowerCase() : 'default';
+      thinkingLevelSelect.value = allowedLevels.includes(savedLevel) ? savedLevel : 'default';
+    }
     if (maxOutputTokensInput) {
       maxOutputTokensInput.value = (typeof data.geminiMaxOutputTokens === 'number') ? data.geminiMaxOutputTokens : 5000;
     }
@@ -309,6 +349,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       modelSelect.value = data.geminiModel;
     }
+    updateThinkingLevelState();
 
     // 保存データ件数の集計
     await updateSavedStats();
@@ -499,6 +540,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       await browser.storage.local.set({ geminiModel: modelSelect.value });
+      updateThinkingLevelState();
       const okMsg = (typeof I18n !== 'undefined' && I18n.getActiveLanguage() === 'en')
         ? `Successfully fetched ${models.length} models.`
         : `利用可能なモデルを ${models.length} 件取得・更新しました。`;
@@ -515,6 +557,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   modelSelect.addEventListener('change', async () => {
     await browser.storage.local.set({ geminiModel: modelSelect.value });
+    updateThinkingLevelState();
     const okMsg = (typeof I18n !== 'undefined' && I18n.getActiveLanguage() === 'en')
       ? `Model changed to "${modelSelect.value}".`
       : `モデルを「${modelSelect.value}」に変更しました。`;
@@ -634,6 +677,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       seedValueInput.value = seed;
 
+      const allowedThinkingLevels = ['default', 'minimal', 'low', 'medium', 'high', 'xhigh'];
+      const thinkingLevel = (thinkingLevelSelect && allowedThinkingLevels.includes(thinkingLevelSelect.value))
+        ? thinkingLevelSelect.value
+        : 'default';
+
       let maxOutputTokens = maxOutputTokensInput ? parseInt(maxOutputTokensInput.value, 10) : 5000;
       if (isNaN(maxOutputTokens) || maxOutputTokens < 100) {
         maxOutputTokens = 5000;
@@ -667,6 +715,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         geminiTopP: topP,
         geminiSeedMode: seedMode,
         geminiSeed: seed,
+        geminiThinkingLevel: thinkingLevel,
         geminiMaxOutputTokens: maxOutputTokens,
         maxTranslationChars: maxTranslationChars,
         geminiSafetySettings: safetySettings
@@ -695,6 +744,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       seedValueInput.value = 0;
 
+      if (thinkingLevelSelect) {
+        thinkingLevelSelect.value = 'default';
+      }
+
       if (maxOutputTokensInput) {
         maxOutputTokensInput.value = 5000;
       }
@@ -713,6 +766,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         geminiTopP: 0.9,
         geminiSeedMode: 'random',
         geminiSeed: 0,
+        geminiThinkingLevel: 'default',
         geminiMaxOutputTokens: 5000,
         maxTranslationChars: 50000,
         geminiSafetySettings: {

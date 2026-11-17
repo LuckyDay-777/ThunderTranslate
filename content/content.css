@@ -48,6 +48,11 @@
   margin-bottom: 16px !important;
 }
 
+/* 表示制御用クラス（!important で確実に非表示化） */
+.gemini-card-hidden {
+  display: none !important;
+}
+
 /* 翻訳中ローディングブロック（フォールバック互換） */
 .gemini-trans-loading {
   display: block !important;

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "default_locale": "ja",
   "name": "__MSG_extensionName__",
-  "version": "1.8.1",
+  "version": "1.8.3",
   "description": "__MSG_extensionDescription__",
   "browser_specific_settings": {
     "gecko": {
@@ -21,7 +21,6 @@
     "storage",
     "menus",
     "messagesRead",
-    "tabs",
     "scripting",
     "webNavigation"
   ],
