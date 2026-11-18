@@ -42,7 +42,9 @@ async function setSessionApiKey(key) {
 // PINブルートフォース対策（連続失敗回数とロックアウト期限の管理）
 const MAX_PIN_ATTEMPTS = 5;
 const PIN_LOCKOUT_BASE_MS = 30000; // 30秒（以降失敗ごとに倍増、最大15分）
-const API_TIMEOUT_MS = 20000; // Gemini API 通信タイムアウト (20秒)
+const API_TIMEOUT_MS = 20000; // モデル一覧取得用タイムアウト (20秒)
+const DEFAULT_API_IDLE_TIMEOUT_SEC = 30; // チャンク間無通信タイムアウト (デフォルト 30秒)
+const DEFAULT_API_TOTAL_TIMEOUT_SEC = 90; // 全体タイムアウト (デフォルト 90秒)
 
 let pinFailedAttempts = 0;
 let pinLockoutUntil = 0;
@@ -111,6 +113,8 @@ let savedTimestampsCache = null;
 // LLM設定・上限設定のメモリキャッシュ（翻訳リクエスト毎の storage.local.get I/O をゼロ化）
 const APP_SETTINGS_KEYS = [
   'geminiModel',
+  'apiIdleTimeoutSec',
+  'apiTotalTimeoutSec',
   'geminiPrompt',
   'geminiPromptType',
   'geminiPromptTemplates',
@@ -1288,15 +1292,62 @@ function supportsThinkingLevel(modelName) {
   return parseInt(match[1], 10) >= 3;
 }
 
-async function callGeminiApi(apiKey, model, prompt, text, generationConfig = null, safetySettings = null, maxBytes = 50000) {
+function resolveApiTimeoutSettings(timeoutConfig = null) {
+  let idleSec = (timeoutConfig && typeof timeoutConfig.apiIdleTimeoutSec === 'number' && Number.isFinite(timeoutConfig.apiIdleTimeoutSec))
+    ? Math.round(timeoutConfig.apiIdleTimeoutSec)
+    : DEFAULT_API_IDLE_TIMEOUT_SEC;
+  if (idleSec < 5) idleSec = 5;
+  if (idleSec > 300) idleSec = 300;
+
+  let totalSec = (timeoutConfig && typeof timeoutConfig.apiTotalTimeoutSec === 'number' && Number.isFinite(timeoutConfig.apiTotalTimeoutSec))
+    ? Math.round(timeoutConfig.apiTotalTimeoutSec)
+    : DEFAULT_API_TOTAL_TIMEOUT_SEC;
+  if (totalSec < 10) totalSec = 10;
+  if (totalSec > 600) totalSec = 600;
+
+  if (totalSec < idleSec) {
+    totalSec = idleSec;
+  }
+
+  return { idleSec, totalSec };
+}
+
+function extractGeminiCandidateChunk(payload, state) {
+  if (!payload || typeof payload !== 'object') return;
+  if (payload.error && payload.error.message) {
+    throw new Error(payload.error.message);
+  }
+  if (payload.promptFeedback && payload.promptFeedback.blockReason) {
+    state.blockReason = payload.promptFeedback.blockReason;
+  }
+  if (Array.isArray(payload.candidates) && payload.candidates.length > 0) {
+    const candidate = payload.candidates[0];
+    if (candidate.finishReason) {
+      state.finishReason = candidate.finishReason;
+    }
+    if (candidate.content && Array.isArray(candidate.content.parts)) {
+      for (const part of candidate.content.parts) {
+        if (part && !part.thought && typeof part.text === 'string') {
+          state.outputChunks.push(part.text);
+        }
+      }
+    }
+  }
+}
+
+async function callGeminiApi(apiKey, model, prompt, text, generationConfig = null, safetySettings = null, maxBytes = 50000, timeoutConfig = null) {
   const sanitizedText = preprocessEmailTextForApi(text, maxBytes);
   if (!sanitizedText) {
     const isEn = (typeof I18n !== 'undefined' && I18n.getActiveLanguage() === 'en');
     throw new Error(isEn ? 'Email body is empty after sanitization.' : '翻訳対象のテキストが空です。');
   }
 
+  const { idleSec, totalSec } = resolveApiTimeoutSettings(timeoutConfig);
+  const idleTimeoutMs = idleSec * 1000;
+  const totalTimeoutMs = totalSec * 1000;
+
   const normalizedModel = model.replace(/^models\//, '');
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(normalizedModel)}:generateContent`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(normalizedModel)}:streamGenerateContent?alt=sse`;
 
   const requestBody = {
     systemInstruction: {
@@ -1325,11 +1376,35 @@ async function callGeminiApi(apiKey, model, prompt, text, generationConfig = nul
   }
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+  let abortReason = null;
+  let idleTimerId = null;
 
-  let response;
+  const resetIdleTimer = () => {
+    if (idleTimerId !== null) {
+      clearTimeout(idleTimerId);
+    }
+    idleTimerId = setTimeout(() => {
+      abortReason = 'idle';
+      controller.abort();
+    }, idleTimeoutMs);
+  };
+
+  const totalTimerId = setTimeout(() => {
+    abortReason = 'total';
+    controller.abort();
+  }, totalTimeoutMs);
+
+  resetIdleTimer();
+
+  let reader = null;
+  const state = {
+    outputChunks: [],
+    finishReason: null,
+    blockReason: null
+  };
+
   try {
-    response = await fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1338,49 +1413,128 @@ async function callGeminiApi(apiKey, model, prompt, text, generationConfig = nul
       body: JSON.stringify(requestBody),
       signal: controller.signal
     });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => '');
+      let errorDetail = `HTTP ${response.status} ${response.statusText}`;
+      if (errorText) {
+        try {
+          const errJson = JSON.parse(errorText);
+          if (errJson && errJson.error && errJson.error.message) {
+            errorDetail = errJson.error.message;
+          }
+        } catch (_) {}
+      }
+      throw new Error(errorDetail);
+    }
+
+    resetIdleTimer();
+
+    const processSseEvent = (dataLines) => {
+      if (!dataLines || dataLines.length === 0) return;
+      const rawData = dataLines.join('\n').trim();
+      if (!rawData || rawData === '[DONE]') return;
+      let parsed;
+      try {
+        parsed = JSON.parse(rawData);
+      } catch (_) {
+        return;
+      }
+      extractGeminiCandidateChunk(parsed, state);
+    };
+
+    const parseSseText = (textChunk, sseState, flush = false) => {
+      sseState.buffer += textChunk;
+      const lines = sseState.buffer.split(/\r\n|\n|\r/);
+      sseState.buffer = flush ? '' : (lines.pop() || '');
+
+      for (const line of lines) {
+        if (line === '') {
+          processSseEvent(sseState.eventDataLines);
+          sseState.eventDataLines = [];
+        } else if (line.startsWith('data:')) {
+          sseState.eventDataLines.push(line.slice(5).trimStart());
+        }
+      }
+
+      if (flush && sseState.eventDataLines.length > 0) {
+        processSseEvent(sseState.eventDataLines);
+        sseState.eventDataLines = [];
+      }
+    };
+
+    const sseState = { buffer: '', eventDataLines: [] };
+
+    if (response.body && typeof response.body.getReader === 'function') {
+      reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) {
+          reader = null;
+          const tail = decoder.decode();
+          parseSseText(tail, sseState, true);
+          break;
+        }
+        if (value && value.byteLength > 0) {
+          resetIdleTimer();
+          const decoded = decoder.decode(value, { stream: true });
+          parseSseText(decoded, sseState, false);
+        }
+      }
+    } else {
+      const fullText = await response.text();
+      resetIdleTimer();
+      parseSseText(fullText, sseState, true);
+    }
   } catch (err) {
     if (err && err.name === 'AbortError') {
       const isEn = (typeof I18n !== 'undefined' && I18n.getActiveLanguage() === 'en');
+      if (abortReason === 'total') {
+        throw new Error(
+          isEn
+            ? `Request timed out (total limit ${totalSec}s). Please try lowering the thinking level or increasing the timeout settings.`
+            : `通信がタイムアウトしました（全体上限 ${totalSec}秒）。思考レベルを下げるかタイムアウト設定を見直してください。`
+        );
+      }
       throw new Error(
         isEn
-          ? 'Request timed out (20s). Please check your network and try again.'
-          : '通信がタイムアウトしました（20秒）。ネットワーク状態を確認して再試行してください。'
+          ? `Request timed out (${idleSec}s with no response data). Please check your network or timeout settings and try again.`
+          : `通信がタイムアウトしました（無通信 ${idleSec}秒）。ネットワーク状態またはタイムアウト設定を確認して再試行してください。`
       );
     }
     throw err;
   } finally {
-    clearTimeout(timeoutId);
-  }
-
-  const data = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    let errorDetail = `HTTP ${response.status} ${response.statusText}`;
-    if (data && data.error && data.error.message) {
-      errorDetail = data.error.message;
+    if (idleTimerId !== null) {
+      clearTimeout(idleTimerId);
     }
-    throw new Error(errorDetail);
+    clearTimeout(totalTimerId);
+    if (reader) {
+      try {
+        await reader.cancel();
+      } catch (_) {}
+    }
   }
 
-  if (
-    data &&
-    data.candidates &&
-    data.candidates.length > 0 &&
-    data.candidates[0].content &&
-    data.candidates[0].content.parts &&
-    data.candidates[0].content.parts.length > 0
-  ) {
-    const rawOutput = data.candidates[0].content.parts
-      .filter((p) => !p.thought && typeof p.text === 'string')
-      .map((p) => p.text)
-      .join('');
-    return sanitizeModelOutputText(rawOutput);
-  } else if (data && data.candidates && data.candidates.length > 0 && data.candidates[0].finishReason === 'SAFETY') {
-    const isEn = (typeof I18n !== 'undefined' && I18n.getActiveLanguage() === 'en');
-    throw new Error(isEn ? 'Blocked by safety filters. Please check safety settings in options.' : 'セーフティフィルターにより翻訳生成がブロックされました。設定画面のセーフティ設定を確認してください。');
-  } else {
-    throw new Error('翻訳結果を取得できませんでした（応答形式不正）。');
+  const rawOutput = state.outputChunks.join('');
+  const sanitized = sanitizeModelOutputText(rawOutput);
+  if (sanitized) {
+    return sanitized;
   }
+
+  const isEn = (typeof I18n !== 'undefined' && I18n.getActiveLanguage() === 'en');
+  if (state.finishReason === 'SAFETY' || state.blockReason) {
+    throw new Error(
+      isEn
+        ? 'Blocked by safety filters. Please check safety settings in options.'
+        : 'セーフティフィルターにより翻訳生成がブロックされました。設定画面のセーフティ設定を確認してください。'
+    );
+  }
+  throw new Error(
+    isEn
+      ? 'Failed to retrieve translation result (invalid response format).'
+      : '翻訳結果を取得できませんでした（応答形式不正）。'
+  );
 }
 
 /* ----------------------------------------------------
@@ -1578,6 +1732,11 @@ extApi.runtime.onMessage.addListener((message, sender, sendResponse) => {
             threshold: safetyMap[category] || 'BLOCK_ONLY_HIGH'
           }));
 
+          const timeoutConfig = {
+            apiIdleTimeoutSec: settings.apiIdleTimeoutSec,
+            apiTotalTimeoutSec: settings.apiTotalTimeoutSec
+          };
+
           let translatedText;
           try {
             translatedText = await callGeminiApi(
@@ -1587,7 +1746,8 @@ extApi.runtime.onMessage.addListener((message, sender, sendResponse) => {
               text,
               generationConfig,
               safetySettings,
-              maxTranslationChars
+              maxTranslationChars,
+              timeoutConfig
             );
           } catch (e) {
             return { success: false, error: e.message };

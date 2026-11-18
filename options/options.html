@@ -65,6 +65,36 @@
           </div>
         </div>
         <div id="model-message" class="message"></div>
+
+        <!-- タイムアウト設定 -->
+        <div class="sub-card">
+          <h3 data-i18n="subcardTimeoutTitle">API 通信タイムアウト設定 (ストリーミング対応)</h3>
+          <p class="subcard-desc" data-i18n="subcardTimeoutDesc">ストリーミング API (:streamGenerateContent) による翻訳通信のタイムアウト時間（秒）を指定します。</p>
+
+          <div class="form-group">
+            <label for="api-idle-timeout-input" data-i18n="labelApiIdleTimeout">チャンク間無通信タイムアウト:</label>
+            <div class="number-input-group">
+              <input type="number" id="api-idle-timeout-input" min="5" max="300" step="1" value="30" class="short-number-input">
+              <span class="unit-text" data-i18n="unitSeconds">秒</span>
+            </div>
+            <small class="help-text" data-i18n="helpApiIdleTimeout">最初の応答またはチャンク受信間隔がこれを超えるとタイムアウトします (デフォルト: 30 秒、範囲: 5〜300)。</small>
+          </div>
+
+          <div class="form-group">
+            <label for="api-total-timeout-input" data-i18n="labelApiTotalTimeout">全体タイムアウト:</label>
+            <div class="number-input-group">
+              <input type="number" id="api-total-timeout-input" min="10" max="600" step="1" value="90" class="short-number-input">
+              <span class="unit-text" data-i18n="unitSeconds">秒</span>
+            </div>
+            <small class="help-text" data-i18n="helpApiTotalTimeout">翻訳リクエスト開始から完了までの最大許容時間を指定します (デフォルト: 90 秒、範囲: 10〜600)。</small>
+          </div>
+
+          <div class="btn-group">
+            <button id="save-timeout-btn" class="btn btn-primary" data-i18n="btnSaveTimeout">タイムアウト設定を保存</button>
+            <button id="reset-timeout-btn" class="btn btn-outline" data-i18n="btnResetTimeout">デフォルト値に戻す</button>
+          </div>
+          <div id="timeout-message" class="message"></div>
+        </div>
       </section>
 
       <!-- 3. プロンプト設定 -->

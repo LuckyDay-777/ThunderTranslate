@@ -202,6 +202,50 @@
     "message": "Fetching...",
     "description": "Fetching models button loading text"
   },
+  "subcardTimeoutTitle": {
+    "message": "API Timeout Settings (Streaming)",
+    "description": "Timeout settings subcard title"
+  },
+  "subcardTimeoutDesc": {
+    "message": "Configure timeout durations (in seconds) for streaming API (:streamGenerateContent) translation requests.",
+    "description": "Timeout settings description"
+  },
+  "labelApiIdleTimeout": {
+    "message": "Inter-Chunk Idle Timeout:",
+    "description": "Inter-chunk idle timeout label"
+  },
+  "helpApiIdleTimeout": {
+    "message": "Times out if no initial response or next chunk arrives within this duration (Default: 30 sec, Range: 5 to 300).",
+    "description": "Inter-chunk idle timeout help"
+  },
+  "labelApiTotalTimeout": {
+    "message": "Total Request Timeout:",
+    "description": "Total request timeout label"
+  },
+  "helpApiTotalTimeout": {
+    "message": "Maximum total duration allowed from request start to completion (Default: 90 sec, Range: 10 to 600).",
+    "description": "Total request timeout help"
+  },
+  "unitSeconds": {
+    "message": "sec",
+    "description": "Seconds unit"
+  },
+  "btnSaveTimeout": {
+    "message": "Save Timeout Settings",
+    "description": "Save timeout settings button"
+  },
+  "btnResetTimeout": {
+    "message": "Reset to Defaults",
+    "description": "Reset timeout settings button"
+  },
+  "msgTimeoutSaved": {
+    "message": "Timeout settings saved.",
+    "description": "Timeout settings saved message"
+  },
+  "msgTimeoutReset": {
+    "message": "Timeout settings reset to defaults (Idle: 30s / Total: 90s).",
+    "description": "Timeout settings reset message"
+  },
   "sec3Title": {
     "message": "3. Translation Prompt Settings",
     "description": "Section 3 title"

@@ -202,6 +202,50 @@
     "message": "取得中...",
     "description": "モデル取得中テキスト"
   },
+  "subcardTimeoutTitle": {
+    "message": "API 通信タイムアウト設定 (ストリーミング対応)",
+    "description": "タイムアウト設定サブカードタイトル"
+  },
+  "subcardTimeoutDesc": {
+    "message": "ストリーミング API (:streamGenerateContent) による翻訳通信のタイムアウト時間（秒）を指定します。",
+    "description": "タイムアウト設定説明文"
+  },
+  "labelApiIdleTimeout": {
+    "message": "チャンク間無通信タイムアウト:",
+    "description": "チャンク間無通信タイムアウトラベル"
+  },
+  "helpApiIdleTimeout": {
+    "message": "最初の応答またはチャンク受信間隔がこれを超えるとタイムアウトします (デフォルト: 30 秒、範囲: 5〜300)。",
+    "description": "チャンク間無通信タイムアウトヘルプ"
+  },
+  "labelApiTotalTimeout": {
+    "message": "全体タイムアウト:",
+    "description": "全体タイムアウトラベル"
+  },
+  "helpApiTotalTimeout": {
+    "message": "翻訳リクエスト開始から完了までの最大許容時間を指定します (デフォルト: 90 秒、範囲: 10〜600)。",
+    "description": "全体タイムアウトヘルプ"
+  },
+  "unitSeconds": {
+    "message": "秒",
+    "description": "秒単位"
+  },
+  "btnSaveTimeout": {
+    "message": "タイムアウト設定を保存",
+    "description": "タイムアウト設定保存ボタン"
+  },
+  "btnResetTimeout": {
+    "message": "デフォルト値に戻す",
+    "description": "タイムアウト設定リセットボタン"
+  },
+  "msgTimeoutSaved": {
+    "message": "タイムアウト設定を保存しました。",
+    "description": "タイムアウト設定保存メッセージ"
+  },
+  "msgTimeoutReset": {
+    "message": "タイムアウト設定をデフォルト値（無通信 30秒 / 全体 90秒）に戻しました。",
+    "description": "タイムアウト設定リセットメッセージ"
+  },
   "sec3Title": {
     "message": "3. 翻訳プロンプト設定",
     "description": "セクション3タイトル"

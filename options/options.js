@@ -60,6 +60,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const modelSelect = document.getElementById('model-select');
   const fetchModelsBtn = document.getElementById('fetch-models-btn');
   const modelMessage = document.getElementById('model-message');
+  const apiIdleTimeoutInput = document.getElementById('api-idle-timeout-input');
+  const apiTotalTimeoutInput = document.getElementById('api-total-timeout-input');
+  const saveTimeoutBtn = document.getElementById('save-timeout-btn');
+  const resetTimeoutBtn = document.getElementById('reset-timeout-btn');
+  const timeoutMessage = document.getElementById('timeout-message');
 
   const promptTypeSelect = document.getElementById('prompt-type-select');
   const promptInput = document.getElementById('prompt-input');
@@ -213,6 +218,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const data = await browser.storage.local.get([
       'encryptedApiKey',
       'geminiModel',
+      'apiIdleTimeoutSec',
+      'apiTotalTimeoutSec',
       'geminiPrompt',
       'geminiPromptType',
       'geminiPromptTemplates',
@@ -350,6 +357,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       modelSelect.value = data.geminiModel;
     }
     updateThinkingLevelState();
+
+    // タイムアウト設定初期値
+    const loadedIdleSec = (typeof data.apiIdleTimeoutSec === 'number' && data.apiIdleTimeoutSec >= 5 && data.apiIdleTimeoutSec <= 300)
+      ? Math.round(data.apiIdleTimeoutSec)
+      : 30;
+    let loadedTotalSec = (typeof data.apiTotalTimeoutSec === 'number' && data.apiTotalTimeoutSec >= 10 && data.apiTotalTimeoutSec <= 600)
+      ? Math.round(data.apiTotalTimeoutSec)
+      : 90;
+    if (loadedTotalSec < loadedIdleSec) {
+      loadedTotalSec = loadedIdleSec;
+    }
+    if (apiIdleTimeoutInput) {
+      apiIdleTimeoutInput.value = loadedIdleSec;
+    }
+    if (apiTotalTimeoutInput) {
+      apiTotalTimeoutInput.value = loadedTotalSec;
+    }
 
     // 保存データ件数の集計
     await updateSavedStats();
@@ -563,6 +587,58 @@ document.addEventListener('DOMContentLoaded', async () => {
       : `モデルを「${modelSelect.value}」に変更しました。`;
     showMessage(modelMessage, okMsg);
   });
+
+  if (saveTimeoutBtn) {
+    saveTimeoutBtn.addEventListener('click', async () => {
+      let idleSec = apiIdleTimeoutInput ? parseInt(apiIdleTimeoutInput.value, 10) : 30;
+      if (isNaN(idleSec) || idleSec < 5) {
+        idleSec = 30;
+      } else if (idleSec > 300) {
+        idleSec = 300;
+      }
+
+      let totalSec = apiTotalTimeoutInput ? parseInt(apiTotalTimeoutInput.value, 10) : 90;
+      if (isNaN(totalSec) || totalSec < 10) {
+        totalSec = 90;
+      } else if (totalSec > 600) {
+        totalSec = 600;
+      }
+
+      if (totalSec < idleSec) {
+        totalSec = idleSec;
+      }
+
+      if (apiIdleTimeoutInput) apiIdleTimeoutInput.value = idleSec;
+      if (apiTotalTimeoutInput) apiTotalTimeoutInput.value = totalSec;
+
+      await browser.storage.local.set({
+        apiIdleTimeoutSec: idleSec,
+        apiTotalTimeoutSec: totalSec
+      });
+
+      const okMsg = (typeof I18n !== 'undefined')
+        ? I18n.getMessage('msgTimeoutSaved')
+        : 'タイムアウト設定を保存しました。';
+      showMessage(timeoutMessage, okMsg);
+    });
+  }
+
+  if (resetTimeoutBtn) {
+    resetTimeoutBtn.addEventListener('click', async () => {
+      if (apiIdleTimeoutInput) apiIdleTimeoutInput.value = 30;
+      if (apiTotalTimeoutInput) apiTotalTimeoutInput.value = 90;
+
+      await browser.storage.local.set({
+        apiIdleTimeoutSec: 30,
+        apiTotalTimeoutSec: 90
+      });
+
+      const okMsg = (typeof I18n !== 'undefined')
+        ? I18n.getMessage('msgTimeoutReset')
+        : 'タイムアウト設定をデフォルト値（無通信 30秒 / 全体 90秒）に戻しました。';
+      showMessage(timeoutMessage, okMsg);
+    });
+  }
 
   // 3. プロンプト設定
   promptTypeSelect.addEventListener('change', async () => {
