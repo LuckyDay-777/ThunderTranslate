@@ -13,7 +13,6 @@ $files = @(
     "background.js",
     "crypto.js",
     "i18n.js",
-    "PRIVACY_POLICY.txt",
     "_locales/ja/messages.json",
     "_locales/en/messages.json",
     "content/content.js",
@@ -25,8 +24,7 @@ $files = @(
     "icons/icon-32.png",
     "icons/icon-64.png",
     "icons/icon-128.png",
-    "icons/icon-256.png",
-    "icons/icon-512.png"
+    "icons/icon-256.png"
 )
 
 foreach ($f in $files) {
