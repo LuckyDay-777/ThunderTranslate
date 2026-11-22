@@ -13,6 +13,7 @@ $files = @(
     "background.js",
     "crypto.js",
     "i18n.js",
+    "model_capabilities.js",
     "_locales/ja/messages.json",
     "_locales/en/messages.json",
     "content/content.js",

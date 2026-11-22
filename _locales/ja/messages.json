@@ -374,6 +374,34 @@
     "message": "※ 現在選択中のモデルは思考レベル（thinkingLevel）の設定に対応していないため無効化されています。",
     "description": "思考レベル非対応モデルの注記"
   },
+  "noteTemperatureUnsupported": {
+    "message": "※ 現在選択中のモデルは温度（temperature）の設定に対応していないため無効化されています。",
+    "description": "温度非対応モデルの注記"
+  },
+  "noteTopKUnsupported": {
+    "message": "※ 現在選択中のモデルは Top-K の設定に対応していないため無効化されています。",
+    "description": "Top-K非対応モデルの注記"
+  },
+  "noteTopPUnsupported": {
+    "message": "※ 現在選択中のモデルは Top-P の設定に対応していないため無効化されています。",
+    "description": "Top-P非対応モデルの注記"
+  },
+  "noteSeedUnsupported": {
+    "message": "※ 現在選択中のモデルは乱数シード（seed）の設定に対応していないため無効化されています。",
+    "description": "シード非対応モデルの注記"
+  },
+  "noteMaxOutputTokensUnsupported": {
+    "message": "※ 現在選択中のモデルは最大出力トークン数の設定に対応していないため無効化されています。",
+    "description": "最大出力トークン数非対応モデルの注記"
+  },
+  "alertParamsAutoAdjustedTitle": {
+    "message": "⚠️ 選択中のモデルの対応範囲に合わせて、以下のパラメータ値を画面上で自動変更しました。",
+    "description": "モデル変更時の自動クランプ警告タイトル"
+  },
+  "alertParamsAutoAdjustedHint": {
+    "message": "※ この変更はまだ保存されていません。「パラメータ設定を保存」ボタンを押して変更を保存してください。",
+    "description": "モデル変更時の自動クランプ保存促進ヒント"
+  },
   "labelMaxOutputTokens": {
     "message": "最大出力トークン数 (Max Output Tokens):",
     "description": "最大出力トークン数ラベル"

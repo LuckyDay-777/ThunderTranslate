@@ -133,36 +133,39 @@
         </p>
 
         <!-- Temperature -->
-        <div class="form-group">
+        <div class="form-group" id="temperature-group">
           <div class="slider-header">
             <label for="temperature-input" data-i18n="labelTemperature">温度 (Temperature):</label>
             <span class="slider-val" id="temperature-val">0.5</span>
           </div>
           <input type="range" id="temperature-input" min="0" max="2" step="0.05" value="0.5" class="slider-input">
-          <small class="help-text" data-i18n="helpTemperature">値が高いほど創造的で多様な表現になり、低いほど一貫した正確な翻訳になります (デフォルト: 0.5、範囲: 0〜2)。</small>
+          <small class="help-text" id="temperature-help" data-i18n="helpTemperature">値が高いほど創造的で多様な表現になり、低いほど一貫した正確な翻訳になります (デフォルト: 0.5、範囲: 0〜2)。</small>
+          <small class="help-text param-unsupported-note" id="temperature-unsupported-note" data-i18n="noteTemperatureUnsupported" style="display: none;">※ 現在選択中のモデルは温度（temperature）の設定に対応していないため無効化されています。</small>
         </div>
 
         <!-- Top-K -->
-        <div class="form-group">
-          <label for="top-k-input" data-i18n="labelTopK">Top-K (1〜40):</label>
+        <div class="form-group" id="top-k-group">
+          <label for="top-k-input" id="top-k-label" data-i18n="labelTopK">Top-K (1〜40):</label>
           <div class="number-input-group">
             <input type="number" id="top-k-input" min="1" max="40" step="1" value="7" class="short-number-input">
           </div>
-          <small class="help-text" data-i18n="helpTopK">各生成ステップで候補とする単語の最大数を指定します (デフォルト: 7、範囲: 1〜40)。</small>
+          <small class="help-text" id="top-k-help" data-i18n="helpTopK">各生成ステップで候補とする単語の最大数を指定します (デフォルト: 7、範囲: 1〜40)。</small>
+          <small class="help-text param-unsupported-note" id="top-k-unsupported-note" data-i18n="noteTopKUnsupported" style="display: none;">※ 現在選択中のモデルは Top-K の設定に対応していないため無効化されています。</small>
         </div>
 
         <!-- Top-P -->
-        <div class="form-group">
+        <div class="form-group" id="top-p-group">
           <div class="slider-header">
             <label for="top-p-input" data-i18n="labelTopP">Top-P (0.01〜1.00):</label>
             <span class="slider-val" id="top-p-val">0.90</span>
           </div>
           <input type="range" id="top-p-input" min="0.01" max="1" step="0.01" value="0.9" class="slider-input">
-          <small class="help-text" data-i18n="helpTopP">累積確率がこの値に達するまでの単語群から選択します (デフォルト: 0.90、範囲: 0.01〜1.00)。</small>
+          <small class="help-text" id="top-p-help" data-i18n="helpTopP">累積確率がこの値に達するまでの単語群から選択します (デフォルト: 0.90、範囲: 0.01〜1.00)。</small>
+          <small class="help-text param-unsupported-note" id="top-p-unsupported-note" data-i18n="noteTopPUnsupported" style="display: none;">※ 現在選択中のモデルは Top-P の設定に対応していないため無効化されています。</small>
         </div>
 
         <!-- Seed -->
-        <div class="form-group">
+        <div class="form-group" id="seed-group">
           <label data-i18n="labelSeed">乱数シード (Seed):</label>
           <div class="radio-group seed-radio-group">
             <label class="radio-label">
@@ -174,10 +177,11 @@
               <span data-i18n="labelSeedFixed">固定値（再現性のある同一の翻訳結果を得る）:</span>
             </label>
             <div class="seed-input-wrapper" id="seed-input-wrapper" style="display: none;">
-              <input type="number" id="seed-value-input" min="0" max="4294967295" step="1" value="0" placeholder="0">
+              <input type="number" id="seed-value-input" min="0" max="2147483647" step="1" value="0" placeholder="0">
             </div>
           </div>
-          <small class="help-text" data-i18n="helpSeed">固定値を指定すると、同じ入力テキストに対して決定論的な同一結果が得られやすくなります (範囲: 0〜4294967295)。</small>
+          <small class="help-text" id="seed-help" data-i18n="helpSeed">固定値を指定すると、同じ入力テキストに対して決定論的な同一結果が得られやすくなります (範囲: 0〜2147483647)。</small>
+          <small class="help-text param-unsupported-note" id="seed-unsupported-note" data-i18n="noteSeedUnsupported" style="display: none;">※ 現在選択中のモデルは乱数シード（seed）の設定に対応していないため無効化されています。</small>
         </div>
 
         <!-- Thinking Level -->
@@ -192,17 +196,18 @@
             <option value="xhigh" data-i18n="thinkingLevelXHigh">最高 (XHigh)</option>
           </select>
           <small class="help-text" data-i18n="helpThinkingLevel">対応モデル（Gemini 3 / 4 系など）における内部推論（思考）の深さを指定します。通常はデフォルトまたは低・中で高速に翻訳できます。</small>
-          <small class="help-text thinking-unsupported-note" id="thinking-level-unsupported-note" data-i18n="noteThinkingLevelUnsupported" style="display: none;">※ 現在選択中のモデルは思考レベル（thinkingLevel）の設定に対応していないため無効化されています。</small>
+          <small class="help-text param-unsupported-note thinking-unsupported-note" id="thinking-level-unsupported-note" data-i18n="noteThinkingLevelUnsupported" style="display: none;">※ 現在選択中のモデルは思考レベル（thinkingLevel）の設定に対応していないため無効化されています。</small>
         </div>
 
         <!-- Max Output Tokens -->
-        <div class="form-group">
+        <div class="form-group" id="max-output-tokens-group">
           <label for="max-output-tokens-input" data-i18n="labelMaxOutputTokens">最大出力トークン数 (Max Output Tokens):</label>
           <div class="number-input-group">
             <input type="number" id="max-output-tokens-input" min="100" max="65536" step="100" value="5000">
             <span class="unit-text" data-i18n="unitTokens">Tokens</span>
           </div>
-          <small class="help-text" data-i18n="helpMaxOutputTokens">モデルが1回の応答で出力する最大トークン数を指定します (デフォルト: 5000 Tokens、範囲: 100〜65536)。</small>
+          <small class="help-text" id="max-output-tokens-help" data-i18n="helpMaxOutputTokens">モデルが1回の応答で出力する最大トークン数を指定します (デフォルト: 5000 Tokens、範囲: 100〜65536)。</small>
+          <small class="help-text param-unsupported-note" id="max-output-tokens-unsupported-note" data-i18n="noteMaxOutputTokensUnsupported" style="display: none;">※ 現在選択中のモデルは最大出力トークン数の設定に対応していないため無効化されています。</small>
         </div>
 
         <!-- MAX_TRANSLATION_CHARS -->
@@ -257,6 +262,12 @@
               </select>
             </div>
           </div>
+        </div>
+
+        <div id="llm-params-adjust-alert" class="alert-banner alert-warning" role="alert" style="display: none;">
+          <div class="alert-banner-title" id="llm-params-adjust-alert-title"></div>
+          <ul class="alert-banner-list" id="llm-params-adjust-alert-list"></ul>
+          <div class="alert-banner-hint" id="llm-params-adjust-alert-hint"></div>
         </div>
 
         <div class="btn-group">
@@ -402,6 +413,7 @@
 
   <script src="../crypto.js"></script>
   <script src="../i18n.js"></script>
+  <script src="../model_capabilities.js"></script>
   <script src="options.js"></script>
 </body>
 </html>

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "default_locale": "ja",
   "name": "__MSG_extensionName__",
-  "version": "1.8.4",
+  "version": "1.8.5",
   "description": "__MSG_extensionDescription__",
   "browser_specific_settings": {
     "gecko": {
@@ -31,6 +31,7 @@
     "scripts": [
       "crypto.js",
       "i18n.js",
+      "model_capabilities.js",
       "background.js"
     ]
   },

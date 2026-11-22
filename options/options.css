@@ -149,10 +149,17 @@ textarea:focus {
 }
 
 .form-group.is-disabled label,
-.form-group.is-disabled .help-text {
+.form-group.is-disabled .help-text,
+.form-group.is-disabled .slider-val,
+.form-group.is-disabled .unit-text {
   opacity: 0.55;
 }
 
+.form-group.is-disabled .radio-label {
+  cursor: not-allowed;
+}
+
+.form-group.is-disabled .param-unsupported-note,
 .form-group.is-disabled .thinking-unsupported-note {
   opacity: 1;
   color: #b06000;
@@ -164,6 +171,45 @@ input:disabled {
   color: #80868b;
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+input[type="range"]:disabled {
+  background-color: transparent;
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.alert-banner {
+  margin: 14px 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.alert-banner.alert-warning {
+  background-color: #fef7e0;
+  border: 1px solid #f9ab00;
+  color: #7c4a00;
+}
+
+.alert-banner-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.alert-banner-list {
+  margin: 4px 0 8px 0;
+  padding-left: 20px;
+}
+
+.alert-banner-list li {
+  margin-bottom: 2px;
+}
+
+.alert-banner-hint {
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .select-with-btn {
@@ -641,7 +687,14 @@ input:disabled {
     border-color: #3c4043;
   }
 
+  .form-group.is-disabled .param-unsupported-note,
   .form-group.is-disabled .thinking-unsupported-note {
+    color: #fdd663;
+  }
+
+  .alert-banner.alert-warning {
+    background-color: #382c0f;
+    border-color: #f9ab00;
     color: #fdd663;
   }
 }

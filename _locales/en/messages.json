@@ -374,6 +374,34 @@
     "message": "* Disabled because the currently selected model does not support Thinking Level configuration.",
     "description": "Thinking Level unsupported model note"
   },
+  "noteTemperatureUnsupported": {
+    "message": "* Disabled because the currently selected model does not support Temperature configuration.",
+    "description": "Temperature unsupported model note"
+  },
+  "noteTopKUnsupported": {
+    "message": "* Disabled because the currently selected model does not support Top-K configuration.",
+    "description": "Top-K unsupported model note"
+  },
+  "noteTopPUnsupported": {
+    "message": "* Disabled because the currently selected model does not support Top-P configuration.",
+    "description": "Top-P unsupported model note"
+  },
+  "noteSeedUnsupported": {
+    "message": "* Disabled because the currently selected model does not support Random Seed configuration.",
+    "description": "Seed unsupported model note"
+  },
+  "noteMaxOutputTokensUnsupported": {
+    "message": "* Disabled because the currently selected model does not support Max Output Tokens configuration.",
+    "description": "Max Output Tokens unsupported model note"
+  },
+  "alertParamsAutoAdjustedTitle": {
+    "message": "⚠️ Some parameter values were automatically adjusted on screen to fit the selected model's supported range:",
+    "description": "Auto-clamp warning title when switching model"
+  },
+  "alertParamsAutoAdjustedHint": {
+    "message": "* These changes are not saved yet. Please click \"Save Parameters\" to apply and save them.",
+    "description": "Auto-clamp save prompt hint"
+  },
   "labelMaxOutputTokens": {
     "message": "Max Output Tokens:",
     "description": "Max Output Tokens label"

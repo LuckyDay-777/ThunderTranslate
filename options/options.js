@@ -72,24 +72,44 @@ document.addEventListener('DOMContentLoaded', async () => {
   const resetPromptBtn = document.getElementById('reset-prompt-btn');
   const promptMessage = document.getElementById('prompt-message');
 
+  const temperatureGroup = document.getElementById('temperature-group');
   const temperatureInput = document.getElementById('temperature-input');
   const temperatureVal = document.getElementById('temperature-val');
+  const temperatureHelp = document.getElementById('temperature-help');
+  const temperatureUnsupportedNote = document.getElementById('temperature-unsupported-note');
+  const topKGroup = document.getElementById('top-k-group');
+  const topKLabel = document.getElementById('top-k-label');
   const topKInput = document.getElementById('top-k-input');
+  const topKHelp = document.getElementById('top-k-help');
+  const topKUnsupportedNote = document.getElementById('top-k-unsupported-note');
+  const topPGroup = document.getElementById('top-p-group');
   const topPInput = document.getElementById('top-p-input');
   const topPVal = document.getElementById('top-p-val');
+  const topPHelp = document.getElementById('top-p-help');
+  const topPUnsupportedNote = document.getElementById('top-p-unsupported-note');
+  const seedGroup = document.getElementById('seed-group');
   const seedModeRandom = document.getElementById('seed-mode-random');
   const seedModeFixed = document.getElementById('seed-mode-fixed');
   const seedInputWrapper = document.getElementById('seed-input-wrapper');
   const seedValueInput = document.getElementById('seed-value-input');
+  const seedHelp = document.getElementById('seed-help');
+  const seedUnsupportedNote = document.getElementById('seed-unsupported-note');
   const thinkingLevelGroup = document.getElementById('thinking-level-group');
   const thinkingLevelSelect = document.getElementById('thinking-level-select');
   const thinkingLevelUnsupportedNote = document.getElementById('thinking-level-unsupported-note');
+  const maxOutputTokensGroup = document.getElementById('max-output-tokens-group');
   const maxOutputTokensInput = document.getElementById('max-output-tokens-input');
+  const maxOutputTokensHelp = document.getElementById('max-output-tokens-help');
+  const maxOutputTokensUnsupportedNote = document.getElementById('max-output-tokens-unsupported-note');
   const maxTranslationCharsInput = document.getElementById('max-translation-chars-input');
   const safetyHarassment = document.getElementById('safety-harassment');
   const safetyHateSpeech = document.getElementById('safety-hate-speech');
   const safetySexuallyExplicit = document.getElementById('safety-sexually-explicit');
   const safetyDangerousContent = document.getElementById('safety-dangerous-content');
+  const llmParamsAdjustAlert = document.getElementById('llm-params-adjust-alert');
+  const llmParamsAdjustAlertTitle = document.getElementById('llm-params-adjust-alert-title');
+  const llmParamsAdjustAlertList = document.getElementById('llm-params-adjust-alert-list');
+  const llmParamsAdjustAlertHint = document.getElementById('llm-params-adjust-alert-hint');
   const saveLlmParamsBtn = document.getElementById('save-llm-params-btn');
   const resetLlmParamsBtn = document.getElementById('reset-llm-params-btn');
   const llmParamsMessage = document.getElementById('llm-params-message');
@@ -109,6 +129,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   let currentPromptType = 'business';
   let promptTemplates = { ...getDefaultPromptTemplates() };
   let hasEncryptedKey = false;
+  let modelsMetadataMap = {};
+  let pendingAdjustments = [];
 
   const savedEmailsCount = document.getElementById('saved-emails-count');
   const cleanupBtn = document.getElementById('cleanup-btn');
@@ -183,33 +205,345 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /**
-   * 選択中のモデルが思考レベル (thinkingLevel) 設定に対応しているかを判定する
-   * @param {string} modelName
-   * @returns {boolean}
+   * 現在選択中（または指定）モデルの機能・対応パラメータ・許容範囲を取得する
+   * @param {string|null} modelName
    */
-  function supportsThinkingLevel(modelName) {
-    if (!modelName || typeof modelName !== 'string') return false;
-    const normalized = modelName.replace(/^models\//, '').toLowerCase();
-    if (/(?:image|imagen|tts|audio|embedding|aqa|veo|lyria|robotics)/i.test(normalized)) {
-      return false;
+  function getCurrentModelCapabilities(modelName = null) {
+    const targetModel = (typeof modelName === 'string' && modelName) ? modelName : (modelSelect ? modelSelect.value : '');
+    if (typeof ModelCapabilities !== 'undefined' && ModelCapabilities.getModelCapabilities) {
+      return ModelCapabilities.getModelCapabilities(targetModel, modelsMetadataMap);
     }
-    const match = normalized.match(/^gemini-(\d+)(?:\.(\d+))?(?:-|$)/);
-    if (!match) return false;
-    return parseInt(match[1], 10) >= 3;
+    return {
+      model: targetModel,
+      hasApiMetadata: false,
+      temperature: { supported: true, min: 0, max: 2 },
+      topK: { supported: true, min: 1, max: 40 },
+      topP: { supported: true, min: 0.01, max: 1.0 },
+      seed: { supported: true, min: 0, max: 2147483647 },
+      thinkingLevel: { supported: false, allowedLevels: [] },
+      maxOutputTokens: { supported: true, min: 100, max: 65536 }
+    };
   }
 
   /**
-   * 選択中のモデルに応じて思考レベル設定の有効/グレーアウト状態を更新する
+   * 選択モデルの許容範囲に合わせて各パラメータのラベル・ヘルプ文の範囲表記を更新する
    */
-  function updateThinkingLevelState() {
-    if (!thinkingLevelSelect || !modelSelect) return;
-    const supported = supportsThinkingLevel(modelSelect.value);
-    thinkingLevelSelect.disabled = !supported;
-    if (thinkingLevelGroup) {
-      thinkingLevelGroup.classList.toggle('is-disabled', !supported);
+  function updateDynamicRangeTexts(caps) {
+    if (!caps) return;
+    const isEn = (typeof I18n !== 'undefined' && I18n.getActiveLanguage() === 'en');
+
+    if (temperatureHelp) {
+      temperatureHelp.textContent = isEn
+        ? `Higher values produce more creative responses, while lower values produce more consistent and deterministic translations (Default: 0.5, Range: ${caps.temperature.min} to ${caps.temperature.max}).`
+        : `値が高いほど創造的で多様な表現になり、低いほど一貫した正確な翻訳になります (デフォルト: 0.5、範囲: ${caps.temperature.min}〜${caps.temperature.max})。`;
     }
-    if (thinkingLevelUnsupportedNote) {
-      thinkingLevelUnsupportedNote.style.display = supported ? 'none' : 'block';
+
+    if (topKLabel) {
+      topKLabel.textContent = isEn
+        ? `Top-K (${caps.topK.min} to ${caps.topK.max}):`
+        : `Top-K (${caps.topK.min}〜${caps.topK.max}):`;
+    }
+    if (topKHelp) {
+      topKHelp.textContent = isEn
+        ? `Specifies the maximum pool of tokens to consider for each step (Default: 7, Range: ${caps.topK.min} to ${caps.topK.max}).`
+        : `各生成ステップで候補とする単語の最大数を指定します (デフォルト: 7、範囲: ${caps.topK.min}〜${caps.topK.max})。`;
+    }
+
+    if (seedHelp) {
+      seedHelp.textContent = isEn
+        ? `Setting a fixed seed helps generate deterministic results for the same input text (Range: ${caps.seed.min} to ${caps.seed.max}).`
+        : `固定値を指定すると、同じ入力テキストに対して決定論的な同一結果が得られやすくなります (範囲: ${caps.seed.min}〜${caps.seed.max})。`;
+    }
+
+    if (maxOutputTokensHelp) {
+      maxOutputTokensHelp.textContent = isEn
+        ? `Specifies the maximum number of tokens generated in a single response (Default: 5000 Tokens, Range: ${caps.maxOutputTokens.min} to ${caps.maxOutputTokens.max}).`
+        : `モデルが1回の応答で出力する最大トークン数を指定します (デフォルト: 5000 Tokens、範囲: ${caps.maxOutputTokens.min}〜${caps.maxOutputTokens.max})。`;
+    }
+  }
+
+  function getThinkingLevelDisplayLabel(levelValue) {
+    const keyMap = {
+      default: 'thinkingLevelDefault',
+      minimal: 'thinkingLevelMinimal',
+      low: 'thinkingLevelLow',
+      medium: 'thinkingLevelMedium',
+      high: 'thinkingLevelHigh',
+      xhigh: 'thinkingLevelXHigh'
+    };
+    const key = keyMap[levelValue];
+    if (key && typeof I18n !== 'undefined') {
+      return I18n.getMessage(key);
+    }
+    return levelValue;
+  }
+
+  function formatAdjustmentLine(adj) {
+    const isEn = (typeof I18n !== 'undefined' && I18n.getActiveLanguage() === 'en');
+    const nameMapJa = {
+      temperature: '温度 (Temperature)',
+      topK: 'Top-K',
+      topP: 'Top-P',
+      seed: '乱数シード (Seed)',
+      thinkingLevel: '思考レベル (Thinking Level)',
+      maxOutputTokens: '最大出力トークン数 (Max Output Tokens)'
+    };
+    const nameMapEn = {
+      temperature: 'Temperature',
+      topK: 'Top-K',
+      topP: 'Top-P',
+      seed: 'Random Seed',
+      thinkingLevel: 'Thinking Level',
+      maxOutputTokens: 'Max Output Tokens'
+    };
+    const label = isEn ? (nameMapEn[adj.paramKey] || adj.paramKey) : (nameMapJa[adj.paramKey] || adj.paramKey);
+
+    if (adj.paramKey === 'thinkingLevel') {
+      const oldLabel = getThinkingLevelDisplayLabel(adj.oldValue);
+      const newLabel = getThinkingLevelDisplayLabel(adj.newValue);
+      return `${label}: ${oldLabel} → ${newLabel}`;
+    }
+
+    const boundText = adj.direction === 'min'
+      ? (isEn ? `Min: ${adj.min}` : `下限: ${adj.min}`)
+      : (isEn ? `Max: ${adj.max}` : `上限: ${adj.max}`);
+    return isEn
+      ? `${label}: ${adj.oldValue} → ${adj.newValue} (${boundText})`
+      : `${label}: ${adj.oldValue} → ${adj.newValue}（${boundText}）`;
+  }
+
+  function renderAdjustmentAlert() {
+    if (!llmParamsAdjustAlert || !llmParamsAdjustAlertTitle || !llmParamsAdjustAlertList || !llmParamsAdjustAlertHint) {
+      return;
+    }
+    if (!pendingAdjustments || pendingAdjustments.length === 0) {
+      llmParamsAdjustAlert.style.display = 'none';
+      llmParamsAdjustAlertList.replaceChildren();
+      return;
+    }
+
+    const isEn = (typeof I18n !== 'undefined' && I18n.getActiveLanguage() === 'en');
+    llmParamsAdjustAlertTitle.textContent = (typeof I18n !== 'undefined')
+      ? I18n.getMessage('alertParamsAutoAdjustedTitle')
+      : (isEn
+        ? 'Some parameter values were automatically adjusted on screen to fit the selected model\'s supported range:'
+        : '⚠️ 選択中のモデルの対応範囲に合わせて、以下のパラメータ値を画面上で自動変更しました。');
+
+    llmParamsAdjustAlertList.replaceChildren();
+    for (const adj of pendingAdjustments) {
+      const li = document.createElement('li');
+      li.textContent = formatAdjustmentLine(adj);
+      llmParamsAdjustAlertList.appendChild(li);
+    }
+
+    llmParamsAdjustAlertHint.textContent = (typeof I18n !== 'undefined')
+      ? I18n.getMessage('alertParamsAutoAdjustedHint')
+      : (isEn
+        ? '* These changes are not saved yet. Please click "Save Parameters" to apply and save them.'
+        : '※ この変更はまだ保存されていません。「パラメータ設定を保存」ボタンを押して変更を保存してください。');
+
+    llmParamsAdjustAlert.style.display = 'block';
+  }
+
+  function clearAdjustmentAlert() {
+    pendingAdjustments = [];
+    renderAdjustmentAlert();
+  }
+
+  /**
+   * 選択中のモデルに応じて全LLMパラメータの有効/グレーアウト状態と許容範囲を更新し、
+   * 範囲外の値を画面上のみ自動補正する（保存は保存ボタン押下時に実施）。
+   */
+  function applyModelCapabilitiesToForm(modelName = null, { autoClamp = true, showDialogOnClamp = false } = {}) {
+    const caps = getCurrentModelCapabilities(modelName);
+    const adjustments = [];
+
+    // 重要: range入力等は max/min 属性を変更した瞬間にDOM値が丸められるため、属性変更前に現在値を読み取る
+    const curTemp = temperatureInput ? parseFloat(temperatureInput.value) : NaN;
+    const curTopK = topKInput ? parseInt(topKInput.value, 10) : NaN;
+    const curTopP = topPInput ? parseFloat(topPInput.value) : NaN;
+    const curSeed = seedValueInput ? parseInt(seedValueInput.value, 10) : NaN;
+    const curThinking = thinkingLevelSelect ? thinkingLevelSelect.value : 'default';
+    const curMaxOut = maxOutputTokensInput ? parseInt(maxOutputTokensInput.value, 10) : NaN;
+
+    // 1. Temperature
+    if (temperatureInput) {
+      const supported = caps.temperature.supported;
+      temperatureInput.disabled = !supported;
+      if (temperatureGroup) temperatureGroup.classList.toggle('is-disabled', !supported);
+      if (temperatureUnsupportedNote) temperatureUnsupportedNote.style.display = supported ? 'none' : 'block';
+      temperatureInput.min = String(caps.temperature.min);
+      temperatureInput.max = String(caps.temperature.max);
+
+      if (supported && autoClamp && !isNaN(curTemp)) {
+        const clamped = ModelCapabilities.clampNumber(curTemp, caps.temperature.min, caps.temperature.max, 2);
+        if (clamped.changed) {
+          temperatureInput.value = String(clamped.value);
+          if (temperatureVal) temperatureVal.textContent = String(clamped.value);
+          adjustments.push({
+            paramKey: 'temperature',
+            oldValue: curTemp,
+            newValue: clamped.value,
+            min: caps.temperature.min,
+            max: caps.temperature.max,
+            direction: clamped.direction
+          });
+        }
+      }
+    }
+
+    // 2. Top-K
+    if (topKInput) {
+      const supported = caps.topK.supported;
+      topKInput.disabled = !supported;
+      if (topKGroup) topKGroup.classList.toggle('is-disabled', !supported);
+      if (topKUnsupportedNote) topKUnsupportedNote.style.display = supported ? 'none' : 'block';
+      topKInput.min = String(caps.topK.min);
+      topKInput.max = String(caps.topK.max);
+
+      if (supported && autoClamp && !isNaN(curTopK)) {
+        const clamped = ModelCapabilities.clampNumber(curTopK, caps.topK.min, caps.topK.max, 0);
+        if (clamped.changed) {
+          topKInput.value = String(clamped.value);
+          adjustments.push({
+            paramKey: 'topK',
+            oldValue: curTopK,
+            newValue: clamped.value,
+            min: caps.topK.min,
+            max: caps.topK.max,
+            direction: clamped.direction
+          });
+        }
+      }
+    }
+
+    // 3. Top-P
+    if (topPInput) {
+      const supported = caps.topP.supported;
+      topPInput.disabled = !supported;
+      if (topPGroup) topPGroup.classList.toggle('is-disabled', !supported);
+      if (topPUnsupportedNote) topPUnsupportedNote.style.display = supported ? 'none' : 'block';
+      topPInput.min = String(caps.topP.min);
+      topPInput.max = String(caps.topP.max);
+
+      if (supported && autoClamp && !isNaN(curTopP)) {
+        const clamped = ModelCapabilities.clampNumber(curTopP, caps.topP.min, caps.topP.max, 2);
+        if (clamped.changed) {
+          topPInput.value = String(clamped.value);
+          if (topPVal) topPVal.textContent = Number(clamped.value).toFixed(2);
+          adjustments.push({
+            paramKey: 'topP',
+            oldValue: Number(curTopP).toFixed(2),
+            newValue: Number(clamped.value).toFixed(2),
+            min: caps.topP.min.toFixed(2),
+            max: caps.topP.max.toFixed(2),
+            direction: clamped.direction
+          });
+        }
+      }
+    }
+
+    // 4. Seed
+    if (seedModeRandom && seedModeFixed && seedValueInput) {
+      const supported = caps.seed.supported;
+      seedModeRandom.disabled = !supported;
+      seedModeFixed.disabled = !supported;
+      seedValueInput.disabled = !supported;
+      if (seedGroup) seedGroup.classList.toggle('is-disabled', !supported);
+      if (seedUnsupportedNote) seedUnsupportedNote.style.display = supported ? 'none' : 'block';
+      seedValueInput.min = String(caps.seed.min);
+      seedValueInput.max = String(caps.seed.max);
+
+      if (supported && autoClamp && seedModeFixed.checked && !isNaN(curSeed)) {
+        const clamped = ModelCapabilities.clampNumber(curSeed, caps.seed.min, caps.seed.max, 0);
+        if (clamped.changed) {
+          seedValueInput.value = String(clamped.value);
+          adjustments.push({
+            paramKey: 'seed',
+            oldValue: curSeed,
+            newValue: clamped.value,
+            min: caps.seed.min,
+            max: caps.seed.max,
+            direction: clamped.direction
+          });
+        }
+      }
+    }
+
+    // 5. Thinking Level
+    if (thinkingLevelSelect) {
+      const supported = caps.thinkingLevel.supported;
+      const allowedLevels = caps.thinkingLevel.allowedLevels || [];
+      thinkingLevelSelect.disabled = !supported;
+      if (thinkingLevelGroup) thinkingLevelGroup.classList.toggle('is-disabled', !supported);
+      if (thinkingLevelUnsupportedNote) thinkingLevelUnsupportedNote.style.display = supported ? 'none' : 'block';
+
+      for (const opt of thinkingLevelSelect.options) {
+        opt.disabled = supported ? !allowedLevels.includes(opt.value) : false;
+      }
+
+      if (supported && autoClamp) {
+        const clamped = ModelCapabilities.clampThinkingLevel(curThinking, allowedLevels);
+        if (clamped.changed) {
+          thinkingLevelSelect.value = clamped.value;
+          adjustments.push({
+            paramKey: 'thinkingLevel',
+            oldValue: curThinking,
+            newValue: clamped.value,
+            min: null,
+            max: null,
+            direction: null
+          });
+        }
+      }
+    }
+
+    // 6. Max Output Tokens
+    if (maxOutputTokensInput) {
+      const supported = caps.maxOutputTokens.supported;
+      maxOutputTokensInput.disabled = !supported;
+      if (maxOutputTokensGroup) maxOutputTokensGroup.classList.toggle('is-disabled', !supported);
+      if (maxOutputTokensUnsupportedNote) maxOutputTokensUnsupportedNote.style.display = supported ? 'none' : 'block';
+      maxOutputTokensInput.min = String(caps.maxOutputTokens.min);
+      maxOutputTokensInput.max = String(caps.maxOutputTokens.max);
+
+      if (supported && autoClamp && !isNaN(curMaxOut)) {
+        const clamped = ModelCapabilities.clampNumber(curMaxOut, caps.maxOutputTokens.min, caps.maxOutputTokens.max, 0);
+        if (clamped.changed) {
+          maxOutputTokensInput.value = String(clamped.value);
+          adjustments.push({
+            paramKey: 'maxOutputTokens',
+            oldValue: curMaxOut,
+            newValue: clamped.value,
+            min: caps.maxOutputTokens.min,
+            max: caps.maxOutputTokens.max,
+            direction: clamped.direction
+          });
+        }
+      }
+    }
+
+    updateDynamicRangeTexts(caps);
+
+    if (adjustments.length > 0) {
+      pendingAdjustments = adjustments;
+      renderAdjustmentAlert();
+
+      if (showDialogOnClamp) {
+        const isEn = (typeof I18n !== 'undefined' && I18n.getActiveLanguage() === 'en');
+        const title = (typeof I18n !== 'undefined')
+          ? I18n.getMessage('alertParamsAutoAdjustedTitle')
+          : (isEn
+            ? 'Some parameter values were automatically adjusted on screen to fit the selected model\'s supported range:'
+            : '選択中のモデルの対応範囲に合わせて、以下のパラメータ値を画面上で自動変更しました。');
+        const hint = (typeof I18n !== 'undefined')
+          ? I18n.getMessage('alertParamsAutoAdjustedHint')
+          : (isEn
+            ? '* These changes are not saved yet. Please click "Save Parameters" to apply and save them.'
+            : '※ この変更はまだ保存されていません。「パラメータ設定を保存」ボタンを押して変更を保存してください。');
+        const lines = adjustments.map((adj) => `・${formatAdjustmentLine(adj)}`);
+        alert(`${title}\n\n${lines.join('\n')}\n\n${hint}`);
+      }
     }
   }
 
@@ -218,6 +552,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const data = await browser.storage.local.get([
       'encryptedApiKey',
       'geminiModel',
+      'geminiModelsMetadata',
       'apiIdleTimeoutSec',
       'apiTotalTimeoutSec',
       'geminiPrompt',
@@ -339,6 +674,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     updateMaxSavedState();
 
+    modelsMetadataMap = (data.geminiModelsMetadata && typeof data.geminiModelsMetadata === 'object')
+      ? data.geminiModelsMetadata
+      : {};
+
     // モデル初期値
     if (data.geminiModel) {
       let exists = false;
@@ -356,7 +695,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       modelSelect.value = data.geminiModel;
     }
-    updateThinkingLevelState();
+    applyModelCapabilitiesToForm(modelSelect.value, { autoClamp: true, showDialogOnClamp: false });
 
     // タイムアウト設定初期値
     const loadedIdleSec = (typeof data.apiIdleTimeoutSec === 'number' && data.apiIdleTimeoutSec >= 5 && data.apiIdleTimeoutSec <= 300)
@@ -410,6 +749,8 @@ document.addEventListener('DOMContentLoaded', async () => {
               updateTitleWithVersion();
               updatePresetSelectLabels();
               updateApiStatusBadge();
+              updateDynamicRangeTexts(getCurrentModelCapabilities());
+              renderAdjustmentAlert();
             });
           }
         }
@@ -563,8 +904,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         modelSelect.value = 'gemini-2.0-flash';
       }
 
-      await browser.storage.local.set({ geminiModel: modelSelect.value });
-      updateThinkingLevelState();
+      if (response.modelMetadata && typeof response.modelMetadata === 'object') {
+        modelsMetadataMap = response.modelMetadata;
+      }
+
+      await browser.storage.local.set({
+        geminiModel: modelSelect.value,
+        geminiModelsMetadata: modelsMetadataMap
+      });
+      applyModelCapabilitiesToForm(modelSelect.value, { autoClamp: true, showDialogOnClamp: true });
       const okMsg = (typeof I18n !== 'undefined' && I18n.getActiveLanguage() === 'en')
         ? `Successfully fetched ${models.length} models.`
         : `利用可能なモデルを ${models.length} 件取得・更新しました。`;
@@ -581,7 +929,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   modelSelect.addEventListener('change', async () => {
     await browser.storage.local.set({ geminiModel: modelSelect.value });
-    updateThinkingLevelState();
+    applyModelCapabilitiesToForm(modelSelect.value, { autoClamp: true, showDialogOnClamp: true });
     const okMsg = (typeof I18n !== 'undefined' && I18n.getActiveLanguage() === 'en')
       ? `Model changed to "${modelSelect.value}".`
       : `モデルを「${modelSelect.value}」に変更しました。`;
@@ -726,44 +1074,64 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (saveLlmParamsBtn) {
     saveLlmParamsBtn.addEventListener('click', async () => {
+      const caps = getCurrentModelCapabilities();
+
       let temp = parseFloat(temperatureInput.value);
-      if (isNaN(temp) || temp < 0 || temp > 2) {
+      if (isNaN(temp)) {
         temp = 0.5;
-        temperatureInput.value = temp;
+      }
+      temp = ModelCapabilities.clampNumber(temp, caps.temperature.min, caps.temperature.max, 2).value;
+      temperatureInput.value = temp;
+      if (temperatureVal) {
+        temperatureVal.textContent = String(temp);
       }
 
       let topK = parseInt(topKInput.value, 10);
-      if (isNaN(topK) || topK < 1 || topK > 40) {
+      if (isNaN(topK)) {
         topK = 7;
-        topKInput.value = topK;
       }
+      topK = ModelCapabilities.clampNumber(topK, caps.topK.min, caps.topK.max, 0).value;
+      topKInput.value = topK;
 
       let topP = parseFloat(topPInput.value);
-      if (isNaN(topP) || topP < 0.01 || topP > 1.0) {
+      if (isNaN(topP)) {
         topP = 0.9;
-        topPInput.value = topP;
+      }
+      topP = ModelCapabilities.clampNumber(topP, caps.topP.min, caps.topP.max, 2).value;
+      topPInput.value = topP;
+      if (topPVal) {
+        topPVal.textContent = Number(topP).toFixed(2);
       }
 
       const seedMode = seedModeFixed.checked ? 'fixed' : 'random';
       let seed = parseInt(seedValueInput.value, 10);
-      if (isNaN(seed) || seed < 0) {
+      if (isNaN(seed)) {
         seed = 0;
-      } else if (seed > 4294967295) {
-        seed = 4294967295;
       }
+      seed = ModelCapabilities.clampNumber(seed, caps.seed.min, caps.seed.max, 0).value;
       seedValueInput.value = seed;
 
       const allowedThinkingLevels = ['default', 'minimal', 'low', 'medium', 'high', 'xhigh'];
-      const thinkingLevel = (thinkingLevelSelect && allowedThinkingLevels.includes(thinkingLevelSelect.value))
+      let thinkingLevel = (thinkingLevelSelect && allowedThinkingLevels.includes(thinkingLevelSelect.value))
         ? thinkingLevelSelect.value
         : 'default';
+      if (caps.thinkingLevel.supported) {
+        thinkingLevel = ModelCapabilities.clampThinkingLevel(thinkingLevel, caps.thinkingLevel.allowedLevels).value;
+        if (thinkingLevelSelect) {
+          thinkingLevelSelect.value = thinkingLevel;
+        }
+      }
 
       let maxOutputTokens = maxOutputTokensInput ? parseInt(maxOutputTokensInput.value, 10) : 5000;
-      if (isNaN(maxOutputTokens) || maxOutputTokens < 100) {
+      if (isNaN(maxOutputTokens)) {
         maxOutputTokens = 5000;
-      } else if (maxOutputTokens > 65536) {
-        maxOutputTokens = 65536;
       }
+      maxOutputTokens = ModelCapabilities.clampNumber(
+        maxOutputTokens,
+        caps.maxOutputTokens.min,
+        caps.maxOutputTokens.max,
+        0
+      ).value;
       if (maxOutputTokensInput) {
         maxOutputTokensInput.value = maxOutputTokens;
       }
@@ -797,6 +1165,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         geminiSafetySettings: safetySettings
       });
 
+      clearAdjustmentAlert();
+
       const okMsg = (typeof I18n !== 'undefined')
         ? I18n.getMessage('msgLlmParamsSaved')
         : 'LLMパラメータ設定を保存しました。';
@@ -806,13 +1176,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (resetLlmParamsBtn) {
     resetLlmParamsBtn.addEventListener('click', async () => {
-      temperatureInput.value = 0.5;
-      temperatureVal.textContent = '0.5';
+      const caps = getCurrentModelCapabilities();
+      const defaultTemp = ModelCapabilities.clampNumber(0.5, caps.temperature.min, caps.temperature.max, 2).value;
+      const defaultTopK = ModelCapabilities.clampNumber(7, caps.topK.min, caps.topK.max, 0).value;
+      const defaultTopP = ModelCapabilities.clampNumber(0.9, caps.topP.min, caps.topP.max, 2).value;
+      const defaultMaxOut = ModelCapabilities.clampNumber(5000, caps.maxOutputTokens.min, caps.maxOutputTokens.max, 0).value;
 
-      topKInput.value = 7;
+      temperatureInput.value = defaultTemp;
+      temperatureVal.textContent = String(defaultTemp);
 
-      topPInput.value = 0.9;
-      topPVal.textContent = '0.90';
+      topKInput.value = defaultTopK;
+
+      topPInput.value = defaultTopP;
+      topPVal.textContent = Number(defaultTopP).toFixed(2);
 
       seedModeRandom.checked = true;
       if (seedInputWrapper) {
@@ -825,7 +1201,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       if (maxOutputTokensInput) {
-        maxOutputTokensInput.value = 5000;
+        maxOutputTokensInput.value = defaultMaxOut;
       }
       if (maxTranslationCharsInput) {
         maxTranslationCharsInput.value = 50000;
@@ -837,13 +1213,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       safetyDangerousContent.value = 'BLOCK_ONLY_HIGH';
 
       await browser.storage.local.set({
-        geminiTemperature: 0.5,
-        geminiTopK: 7,
-        geminiTopP: 0.9,
+        geminiTemperature: defaultTemp,
+        geminiTopK: defaultTopK,
+        geminiTopP: defaultTopP,
         geminiSeedMode: 'random',
         geminiSeed: 0,
         geminiThinkingLevel: 'default',
-        geminiMaxOutputTokens: 5000,
+        geminiMaxOutputTokens: defaultMaxOut,
         maxTranslationChars: 50000,
         geminiSafetySettings: {
           HARM_CATEGORY_HARASSMENT: 'BLOCK_ONLY_HIGH',
@@ -852,6 +1228,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           HARM_CATEGORY_DANGEROUS_CONTENT: 'BLOCK_ONLY_HIGH'
         }
       });
+
+      clearAdjustmentAlert();
 
       const okMsg = (typeof I18n !== 'undefined')
         ? I18n.getMessage('msgLlmParamsReset')
@@ -1147,6 +1525,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateTitleWithVersion();
         updatePresetSelectLabels();
         updateApiStatusBadge();
+        updateDynamicRangeTexts(getCurrentModelCapabilities());
+        renderAdjustmentAlert();
         showMessage(langMessage, I18n.getMessage('msgLangChanged'));
       }
     });

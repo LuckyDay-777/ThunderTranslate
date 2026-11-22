@@ -113,6 +113,7 @@ let savedTimestampsCache = null;
 // LLM設定・上限設定のメモリキャッシュ（翻訳リクエスト毎の storage.local.get I/O をゼロ化）
 const APP_SETTINGS_KEYS = [
   'geminiModel',
+  'geminiModelsMetadata',
   'apiIdleTimeoutSec',
   'apiTotalTimeoutSec',
   'geminiPrompt',
@@ -1282,6 +1283,9 @@ function preprocessEmailTextForApi(rawText, maxBytes = 50000) {
 }
 
 function supportsThinkingLevel(modelName) {
+  if (typeof ModelCapabilities !== 'undefined' && ModelCapabilities.supportsThinkingLevel) {
+    return ModelCapabilities.supportsThinkingLevel(modelName);
+  }
   if (!modelName || typeof modelName !== 'string') return false;
   const normalized = modelName.replace(/^models\//, '').toLowerCase();
   if (/(?:image|imagen|tts|audio|embedding|aqa|veo|lyria|robotics)/i.test(normalized)) {
@@ -1692,32 +1696,68 @@ extApi.runtime.onMessage.addListener((message, sender, sendResponse) => {
             prompt = defaultTemplates.business;
           }
 
-          // LLM パラメータの組み立て
-          const maxOutputTokens = (typeof settings.geminiMaxOutputTokens === 'number' && settings.geminiMaxOutputTokens >= 100)
-            ? settings.geminiMaxOutputTokens
-            : 5000;
+          // LLM パラメータの組み立て（モデルの対応状況・許容範囲に合わせて安全に正規化）
+          const caps = (typeof ModelCapabilities !== 'undefined' && ModelCapabilities.getModelCapabilities)
+            ? ModelCapabilities.getModelCapabilities(model, settings.geminiModelsMetadata)
+            : null;
+
           const maxTranslationChars = (typeof settings.maxTranslationChars === 'number' && settings.maxTranslationChars >= 1000)
             ? settings.maxTranslationChars
             : 50000;
 
-          const generationConfig = {
-            temperature: (typeof settings.geminiTemperature === 'number') ? settings.geminiTemperature : 0.5,
-            topK: (typeof settings.geminiTopK === 'number') ? settings.geminiTopK : 7,
-            topP: (typeof settings.geminiTopP === 'number') ? settings.geminiTopP : 0.9,
-            maxOutputTokens: maxOutputTokens
-          };
-          if (settings.geminiSeedMode === 'fixed' && typeof settings.geminiSeed === 'number') {
-            generationConfig.seed = settings.geminiSeed;
+          const generationConfig = {};
+
+          if (!caps || caps.temperature.supported) {
+            const rawTemp = (typeof settings.geminiTemperature === 'number') ? settings.geminiTemperature : 0.5;
+            const minT = caps ? caps.temperature.min : 0;
+            const maxT = caps ? caps.temperature.max : 2;
+            generationConfig.temperature = Math.min(maxT, Math.max(minT, rawTemp));
           }
-          const allowedThinkingLevels = ['minimal', 'low', 'medium', 'high', 'xhigh'];
-          if (
-            supportsThinkingLevel(model) &&
-            typeof settings.geminiThinkingLevel === 'string' &&
-            allowedThinkingLevels.includes(settings.geminiThinkingLevel.toLowerCase())
-          ) {
-            generationConfig.thinkingConfig = {
-              thinkingLevel: settings.geminiThinkingLevel.toUpperCase()
-            };
+
+          if (!caps || caps.topK.supported) {
+            const rawTopK = (typeof settings.geminiTopK === 'number') ? settings.geminiTopK : 7;
+            const minK = caps ? caps.topK.min : 1;
+            const maxK = caps ? caps.topK.max : 40;
+            generationConfig.topK = Math.round(Math.min(maxK, Math.max(minK, rawTopK)));
+          }
+
+          if (!caps || caps.topP.supported) {
+            const rawTopP = (typeof settings.geminiTopP === 'number') ? settings.geminiTopP : 0.9;
+            const minP = caps ? caps.topP.min : 0.01;
+            const maxP = caps ? caps.topP.max : 1.0;
+            generationConfig.topP = Math.min(maxP, Math.max(minP, rawTopP));
+          }
+
+          if (!caps || caps.maxOutputTokens.supported) {
+            const rawMaxOut = (typeof settings.geminiMaxOutputTokens === 'number' && settings.geminiMaxOutputTokens >= 100)
+              ? settings.geminiMaxOutputTokens
+              : 5000;
+            const minOut = caps ? caps.maxOutputTokens.min : 100;
+            const maxOut = caps ? caps.maxOutputTokens.max : 65536;
+            generationConfig.maxOutputTokens = Math.round(Math.min(maxOut, Math.max(minOut, rawMaxOut)));
+          }
+
+          if ((!caps || caps.seed.supported) && settings.geminiSeedMode === 'fixed' && typeof settings.geminiSeed === 'number') {
+            const minSeed = caps ? caps.seed.min : 0;
+            const maxSeed = caps ? caps.seed.max : 2147483647;
+            generationConfig.seed = Math.round(Math.min(maxSeed, Math.max(minSeed, settings.geminiSeed)));
+          }
+
+          const allowedThinkingLevels = (caps && caps.thinkingLevel && Array.isArray(caps.thinkingLevel.allowedLevels))
+            ? caps.thinkingLevel.allowedLevels
+            : (supportsThinkingLevel(model) ? ['default', 'minimal', 'low', 'medium', 'high', 'xhigh'] : []);
+          if (allowedThinkingLevels.length > 0 && typeof settings.geminiThinkingLevel === 'string') {
+            const requestedLevel = settings.geminiThinkingLevel.toLowerCase();
+            if (requestedLevel !== 'default') {
+              const resolvedLevel = (typeof ModelCapabilities !== 'undefined' && ModelCapabilities.clampThinkingLevel)
+                ? ModelCapabilities.clampThinkingLevel(requestedLevel, allowedThinkingLevels).value
+                : (allowedThinkingLevels.includes(requestedLevel) ? requestedLevel : 'default');
+              if (resolvedLevel && resolvedLevel !== 'default') {
+                generationConfig.thinkingConfig = {
+                  thinkingLevel: resolvedLevel.toUpperCase()
+                };
+              }
+            }
           }
 
           const safetyMap = settings.geminiSafetySettings || {};
@@ -2123,7 +2163,11 @@ extApi.runtime.onMessage.addListener((message, sender, sendResponse) => {
             .filter((m) => m.supportedGenerationMethods && m.supportedGenerationMethods.includes('generateContent'))
             .map((m) => m.name.replace(/^models\//, ''));
 
-          return { success: true, models };
+          const modelMetadata = (typeof ModelCapabilities !== 'undefined' && ModelCapabilities.extractModelMetadataMap)
+            ? ModelCapabilities.extractModelMetadataMap(data.models || [])
+            : {};
+
+          return { success: true, models, modelMetadata };
         } catch (e) {
           if (e && e.name === 'AbortError') {
             const isEn = (typeof I18n !== 'undefined' && I18n.getActiveLanguage() === 'en');
