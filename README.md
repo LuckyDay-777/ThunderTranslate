@@ -48,8 +48,7 @@ ThunderTranslate は、Google の Gemini API を使用し、Thunderbird 内で�
 
 ## インストール方法
 
-### 開発版（XPI からの手動インストール）
-1. [Releases](../../releases) ページから最新の `ThunderTranslate.xpi` をダウンロードします（または下記の手順でビルドします）。
+1. ATN (https://addons.thunderbird.net/ja/thunderbird/addon/thundertranslate/) から最新の `ThunderTranslate.xpi` をダウンロードします。（または下記の手順でビルドします。）
 2. Thunderbird を起動し、**「アドオンとテーマ」**（`Ctrl + Shift + A`）を開きます。
 3. 右上の歯車アイコン ⚙️ をクリックし、**「ファイルからアドオンをインストール...」** を選択します。
 4. ダウンロードした `ThunderTranslate.xpi` を選択し、インストールを許可します。
